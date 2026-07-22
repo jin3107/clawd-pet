@@ -1,0 +1,176 @@
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(1.03); }
+}
+
+@keyframes walk-body {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}
+
+@keyframes walk-leg-a {
+  0%, 100% { transform: translateY(-3px); }
+  50%      { transform: translateY(0); }
+}
+
+@keyframes walk-leg-b {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+@keyframes blink {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.15); }
+}
+
+@keyframes surf-bob {
+  0%, 100% { transform: rotate(-1deg) translateY(0); }
+  50%      { transform: rotate(1deg) translateY(-3px); }
+}
+
+@keyframes surf-board {
+  0%, 100% { transform: rotate(-2deg) translateY(0); }
+  50%      { transform: rotate(2deg) translateY(-2px); }
+}
+
+@keyframes climb-wiggle {
+  0%, 100% { transform: rotate(2deg); }
+  50%      { transform: rotate(-2deg); }
+}
+
+@keyframes climb-grab {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+@keyframes look-around {
+  0%, 100% { transform: translateX(0); }
+  30%      { transform: translateX(-2px); }
+  70%      { transform: translateX(2px); }
+}
+
+@keyframes sit-breathe {
+  0%, 100% { transform: translateY(6px) scaleY(1); }
+  50%      { transform: translateY(6px) scaleY(1.02); }
+}
+
+@keyframes type-arm-l {
+  0%, 100% { transform: translate(68px, 18px); }
+  50%      { transform: translate(68px, 21px); }
+}
+
+@keyframes type-arm-r {
+  0%, 100% { transform: translate(8px, 21px); }
+  50%      { transform: translate(8px, 18px); }
+}
+
+@keyframes chute-sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50%      { transform: rotate(3deg); }
+}
+
+@keyframes cup-lift {
+  0%   { transform: translate(0, 14px); }
+  100% { transform: translate(-2px, -8px); }
+}
+
+@keyframes cup-sip {
+  0%   { transform: translate(-2px, -8px); }
+  100% { transform: translate(-2px, -11px); }
+}
+
+@keyframes steam-rise {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2.5px); }
+}
+
+@keyframes hop {
+  0%, 100% { transform: translateY(0) scaleY(0.94); }
+  40%      { transform: translateY(-14px) scaleY(1.05); }
+  60%      { transform: translateY(-14px) scaleY(1.05); }
+}
+
+@keyframes tuck {
+  0%, 100% { transform: translateY(0); }
+  40%, 60% { transform: translateY(-4px); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(4deg); }
+  50%      { transform: rotate(-4deg); }
+}
+
+@keyframes dangle {
+  0%, 100% { transform: translateY(2px) rotate(2deg); }
+  50%      { transform: translateY(3px) rotate(-2deg); }
+}
+
+@keyframes flail {
+  from { transform: translateY(-2px); }
+  to   { transform: translateY(2px); }
+}
+
+@keyframes happy-bounce {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(1.06) translateY(-1px); }
+}
+
+@keyframes head-bang {
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  50%      { transform: translateY(-2px) rotate(1.5deg); }
+}
+
+@keyframes note-float {
+  0%   { transform: translateY(6px); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: translateY(-8px); opacity: 0; }
+}
+
+@keyframes ball-arc {
+  0%, 100% { transform: translate(0, 0); }
+  25%      { transform: translate(-35px, -30px); }
+  50%      { transform: translate(-71px, 0); }
+  75%      { transform: translate(-35px, -30px); }
+}
+
+@keyframes soccer-lean {
+  0%, 100% { transform: rotate(-6deg) translateY(0); }
+  25%, 75% { transform: rotate(0deg) translateY(-3px); }
+  50%      { transform: rotate(6deg) translateY(0); }
+}
+
+@keyframes heart-float {
+  0%   { transform: translateY(4px); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: translateY(-8px); opacity: 0; }
+}
+
+@keyframes arm-sway-l {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-6deg); }
+}
+
+@keyframes arm-sway-r {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(6deg); }
+}
+
+@keyframes arm-flap-l {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-16deg); }
+}
+
+@keyframes arm-flap-r {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(16deg); }
+}
+
+@keyframes bubble-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.08); }
+}

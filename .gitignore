@@ -1,0 +1,10 @@
+node_modules/
+dist/
+out/
+*.log
+.DS_Store
+Thumbs.db
+.gitnexus/
+.claude/
+CLAUDE.md
+AGENTS.md

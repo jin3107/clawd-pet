@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Pixel Pet</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/states.css">
+<link rel="stylesheet" href="css/keyframes.css">
+</head>
+<body>
+  <div id="stage">
+    <svg id="creature" width="100" height="65" viewBox="-52 -54 184 120" xmlns="http://www.w3.org/2000/svg">
+      <g id="flip-group">
+        <g id="bob-group">
+          <g id="hearts" fill="#E06C9F">
+            <g class="heart heart-1">
+              <rect x="14" y="-14" width="3" height="3"/>
+              <rect x="20" y="-14" width="3" height="3"/>
+              <rect x="14" y="-11" width="9" height="3"/>
+              <rect x="17" y="-8" width="3" height="3"/>
+            </g>
+            <g class="heart heart-2">
+              <rect x="52" y="-12" width="3" height="3"/>
+              <rect x="58" y="-12" width="3" height="3"/>
+              <rect x="52" y="-9" width="9" height="3"/>
+              <rect x="55" y="-6" width="3" height="3"/>
+            </g>
+          </g>
+          <rect id="torso" x="10" y="0" width="60" height="40" fill="#D9835F"/>
+          <g id="eyes-n">
+            <rect class="eye" x="16" y="6" width="8" height="8" fill="#242320"/>
+            <rect class="eye" x="56" y="6" width="8" height="8" fill="#242320"/>
+          </g>
+          <g id="eyes-h" fill="#242320">
+            <rect x="15" y="10" width="4" height="4"/>
+            <rect x="19" y="6" width="4" height="4"/>
+            <rect x="23" y="10" width="4" height="4"/>
+            <rect x="55" y="10" width="4" height="4"/>
+            <rect x="59" y="6" width="4" height="4"/>
+            <rect x="63" y="10" width="4" height="4"/>
+          </g>
+          <g id="eyes-x" fill="#242320">
+            <rect x="16" y="6" width="4" height="4"/>
+            <rect x="16" y="14" width="4" height="4"/>
+            <rect x="22" y="10" width="4" height="4"/>
+            <rect x="60" y="6" width="4" height="4"/>
+            <rect x="60" y="14" width="4" height="4"/>
+            <rect x="54" y="10" width="4" height="4"/>
+          </g>
+          <g id="parachute">
+            <rect x="28" y="-70" width="24" height="6" fill="#D9835F"/>
+            <rect x="10" y="-64" width="19" height="6" fill="#F2D9B8"/>
+            <rect x="29" y="-64" width="22" height="6" fill="#D9835F"/>
+            <rect x="51" y="-64" width="19" height="6" fill="#F2D9B8"/>
+            <rect x="-5" y="-58" width="12" height="7" fill="#D9835F"/>
+            <rect x="7"  y="-58" width="22" height="7" fill="#F2D9B8"/>
+            <rect x="29" y="-58" width="22" height="7" fill="#D9835F"/>
+            <rect x="51" y="-58" width="22" height="7" fill="#F2D9B8"/>
+            <rect x="73" y="-58" width="12" height="7" fill="#D9835F"/>
+            <rect x="-15" y="-51" width="22" height="7" fill="#D9835F"/>
+            <rect x="7"   y="-51" width="22" height="7" fill="#F2D9B8"/>
+            <rect x="29"  y="-51" width="22" height="7" fill="#D9835F"/>
+            <rect x="51"  y="-51" width="22" height="7" fill="#F2D9B8"/>
+            <rect x="73"  y="-51" width="22" height="7" fill="#D9835F"/>
+            <rect x="-15" y="-44" width="110" height="2" fill="#8B5A3C"/>
+            <g fill="#55555C">
+              <rect x="-11" y="-42" width="2" height="12"/>
+              <rect x="-6"  y="-30" width="2" height="14"/>
+              <rect x="0"   y="-16" width="2" height="16"/>
+              <rect x="89" y="-42" width="2" height="12"/>
+              <rect x="84" y="-30" width="2" height="14"/>
+              <rect x="78" y="-16" width="2" height="16"/>
+            </g>
+          </g>
+          <g fill="#C46F4D">
+            <rect class="leg leg-a" x="10" y="40" width="7.8" height="15"/>
+            <rect class="leg leg-b" x="27.4" y="40" width="7.8" height="15"/>
+            <rect class="leg leg-a" x="44.8" y="40" width="7.8" height="15"/>
+            <rect class="leg leg-b" x="62.2" y="40" width="7.8" height="15"/>
+          </g>
+          <g id="ball">
+            <rect x="68" y="8" width="7.5" height="7.5" fill="#ECECEC"/>
+            <rect x="75.5" y="8" width="7.5" height="7.5" fill="#242320"/>
+            <rect x="68" y="15.5" width="7.5" height="7.5" fill="#242320"/>
+            <rect x="75.5" y="15.5" width="7.5" height="7.5" fill="#ECECEC"/>
+          </g>
+          <g id="laptop">
+            <g fill="#6E7987">
+              <rect x="86"   y="46" width="28" height="5"/>
+              <rect x="87.5" y="41" width="28" height="5"/>
+              <rect x="89"   y="36" width="28" height="5"/>
+              <rect x="90.5" y="31" width="28" height="5"/>
+              <rect x="92"   y="26" width="28" height="5"/>
+              <rect x="93.5" y="21" width="28" height="5"/>
+            </g>
+            <g fill="#F2F2F2">
+              <rect x="95" y="35" width="3" height="3"/>
+              <rect x="98" y="32" width="3" height="3"/>
+              <rect x="98" y="38" width="3" height="3"/>
+              <rect x="102" y="38" width="3" height="3"/>
+              <rect x="104" y="35" width="3" height="3"/>
+              <rect x="106" y="32" width="3" height="3"/>
+              <rect x="110" y="32" width="3" height="3"/>
+              <rect x="110" y="38" width="3" height="3"/>
+              <rect x="113" y="35" width="3" height="3"/>
+            </g>
+            <rect x="64" y="51" width="46" height="4" fill="#5B6B7A"/>
+            <g fill="#7C8CA0">
+              <rect x="66" y="52" width="4" height="2"/>
+              <rect x="72" y="52" width="4" height="2"/>
+              <rect x="78" y="52" width="4" height="2"/>
+              <rect x="84" y="52" width="4" height="2"/>
+              <rect x="90" y="52" width="4" height="2"/>
+              <rect x="96" y="52" width="4" height="2"/>
+              <rect x="102" y="52" width="4" height="2"/>
+            </g>
+          </g>
+          <rect class="arm arm-l" x="-7" y="14" width="17" height="12" fill="#D9835F"/>
+          <rect class="arm arm-r" x="70" y="14" width="17" height="12" fill="#D9835F"/>
+          <g id="headphones">
+            <rect x="8" y="-2" width="64" height="6" fill="#3B3B42"/>
+            <rect x="2" y="4" width="10" height="14" fill="#A9CDC7"/>
+            <rect x="68" y="4" width="10" height="14" fill="#A9CDC7"/>
+          </g>
+          <g id="dj-table">
+            <rect x="6" y="34" width="68" height="6" fill="#55555C"/>
+            <rect x="16" y="26" width="14" height="10" fill="#3B7FC4"/>
+            <rect x="50" y="26" width="14" height="10" fill="#ECECEC"/>
+          </g>
+          <g id="notes">
+            <g class="note note-1" fill="#3B3B42">
+              <rect x="76" y="-4" width="2" height="9"/>
+              <rect x="72" y="2" width="4" height="4"/>
+              <rect x="76" y="-4" width="5" height="2"/>
+            </g>
+          </g>
+          <g id="cup">
+            <g id="steam" fill="#ABABAB">
+              <rect x="76" y="1" width="1.5" height="3"/>
+              <rect x="77.5" y="-2" width="1.5" height="3"/>
+              <rect x="82" y="1" width="1.5" height="3"/>
+              <rect x="80.5" y="-2" width="1.5" height="3"/>
+            </g>
+            <rect x="74" y="7" width="12" height="10" fill="#F2E9DC"/>
+            <rect x="76" y="7" width="8" height="2" fill="#4A2E1E"/>
+            <rect x="86" y="9" width="4" height="1.5" fill="#F2E9DC"/>
+            <rect x="88.5" y="9" width="1.5" height="5" fill="#F2E9DC"/>
+            <rect x="86" y="12.5" width="4" height="1.5" fill="#F2E9DC"/>
+          </g>
+          <g id="think-bubble" fill="#F2F2F2">
+            <rect x="30" y="-28" width="20" height="14"/>
+            <rect x="26" y="-24" width="6" height="6"/>
+            <rect x="50" y="-24" width="6" height="6"/>
+            <rect x="34" y="-10" width="4" height="4"/>
+            <rect x="27" y="-4" width="3" height="3"/>
+          </g>
+          <rect id="head-zone" x="10" y="0" width="60" height="20" fill="transparent" pointer-events="all"/>
+        </g>
+        <g id="board">
+          <rect x="-6" y="52" width="92" height="8" fill="#C15F8B"/>
+          <rect x="-6" y="52" width="92" height="3" fill="#D488AC"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <script src="pet.js"></script>
+</body>
+</html>

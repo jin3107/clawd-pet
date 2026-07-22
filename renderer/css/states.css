@@ -1,0 +1,308 @@
+body.walk #bob-group {
+  animation: walk-body 0.24s steps(1) infinite;
+}
+
+body.walk .leg-a {
+  animation: walk-leg-a 0.24s steps(1) infinite;
+}
+
+body.walk .leg-b {
+  animation: walk-leg-b 0.24s steps(1) infinite;
+}
+
+body.walk .arm-l {
+  animation: arm-flap-l 0.24s steps(1) infinite;
+}
+
+body.walk .arm-r {
+  animation: arm-flap-r 0.24s steps(1) infinite;
+}
+
+body.idle #bob-group {
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+body.idle .arm-l {
+  animation: arm-sway-l 2.4s ease-in-out infinite;
+}
+
+body.idle .arm-r {
+  animation: arm-sway-r 2.4s ease-in-out infinite;
+}
+
+body.surf #board {
+  display: inline;
+  animation: surf-board 0.6s ease-in-out infinite;
+  transform-origin: 40px 56px;
+}
+
+body.surf #bob-group {
+  animation: surf-bob 0.6s ease-in-out infinite;
+}
+
+body.surf .arm-l {
+  animation: arm-sway-l 0.6s ease-in-out infinite;
+}
+
+body.surf .arm-r {
+  animation: arm-sway-r 0.6s ease-in-out infinite;
+}
+
+body.climb #bob-group {
+  animation: climb-wiggle 0.6s ease-in-out infinite;
+}
+
+body.climb .leg-a,
+body.climb .arm-r {
+  animation: climb-grab 0.3s ease-in-out infinite;
+}
+
+body.climb .leg-b,
+body.climb .arm-l {
+  animation: climb-grab 0.3s ease-in-out infinite 0.15s;
+}
+
+body.hang #bob-group {
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+body.hang .leg,
+body.hang .arm {
+  animation: none;
+}
+
+body.hang .eye {
+  animation: look-around 3s ease-in-out infinite;
+}
+
+body.code #laptop {
+  display: inline;
+  transform-origin: 87px 53px;
+}
+
+body.code.closing #laptop {
+  transform: scaleY(0.08);
+  transition: transform 0.3s ease-in-out;
+}
+
+body.code #bob-group {
+  animation: sit-breathe 2.4s ease-in-out infinite;
+}
+
+body.code .leg {
+  transform: scaleY(0.5);
+}
+
+body.code .arm-l {
+  animation: type-arm-l 0.24s steps(1) infinite;
+}
+
+body.code .arm-r {
+  animation: type-arm-r 0.24s steps(1) infinite;
+}
+
+body.code.closing .arm-l,
+body.code.closing .arm-r {
+  animation: none;
+}
+
+body.music #headphones,
+body.music #dj-table,
+body.music #notes {
+  display: inline;
+}
+
+body.music #bob-group {
+  animation: head-bang 0.5s ease-in-out infinite;
+}
+
+body.music .arm-l {
+  animation: arm-flap-l 0.5s ease-in-out infinite;
+}
+
+body.music .arm-r {
+  animation: arm-flap-r 0.5s ease-in-out infinite;
+}
+
+body.music .note-1 {
+  animation: note-float 1.6s ease-out infinite;
+}
+
+body.soccer #ball {
+  display: inline;
+  animation: ball-arc 2.4s ease-in-out infinite;
+}
+
+body.soccer #bob-group {
+  transform-origin: 40px 55px;
+  animation: soccer-lean 2.4s ease-in-out infinite;
+}
+
+body.soccer .arm-l {
+  animation: arm-sway-l 0.55s ease-in-out infinite;
+}
+
+body.soccer .arm-r {
+  animation: arm-sway-r 0.55s ease-in-out infinite;
+}
+
+body.soccer .leg:nth-of-type(1) { transform: translateX(-3px); }
+body.soccer .leg:nth-of-type(2) { transform: translateX(-1.5px); }
+body.soccer .leg:nth-of-type(3) { transform: translateX(1.5px); }
+body.soccer .leg:nth-of-type(4) { transform: translateX(3px); }
+
+body.coffee #cup {
+  display: inline;
+  animation: cup-lift 0.35s ease-out forwards;
+}
+
+body.coffee.sipping #cup {
+  animation: cup-sip 0.3s ease-in-out infinite alternate;
+}
+
+body.coffee #steam {
+  animation: steam-rise 1.4s ease-in-out infinite;
+}
+
+body.coffee .arm-r {
+  transform: rotate(-30deg);
+}
+
+body.coffee #bob-group {
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+body.coffee .arm-l {
+  animation: arm-sway-l 1.8s ease-in-out infinite;
+}
+
+body.coffee.sipping #eyes-h {
+  display: inline;
+}
+
+body.coffee.sipping #eyes-n {
+  display: none;
+}
+
+body.jump #bob-group {
+  animation: hop 0.45s ease-in-out infinite;
+}
+
+body.jump .leg {
+  animation: tuck 0.45s ease-in-out infinite;
+}
+
+body.jump .arm-l {
+  animation: arm-flap-l 0.45s ease-in-out infinite;
+}
+
+body.jump .arm-r {
+  animation: arm-flap-r 0.45s ease-in-out infinite;
+}
+
+body.held #bob-group {
+  animation: sway 0.9s ease-in-out infinite;
+}
+
+body.held .eye {
+  scale: 1 1.25;
+}
+
+body.held .arm-l {
+  animation: arm-sway-l 0.9s ease-in-out infinite;
+}
+
+body.held .arm-r {
+  animation: arm-sway-r 0.9s ease-in-out infinite;
+}
+
+body.held .leg-a {
+  animation: dangle 0.6s ease-in-out infinite;
+}
+
+body.held .leg-b {
+  animation: dangle 0.6s ease-in-out infinite 0.3s;
+}
+
+body.fall .eye {
+  scale: 1 1.25;
+}
+
+body.fall .leg {
+  translate: 0 -3px;
+}
+
+body.fall .arm-l,
+body.fall .arm-r {
+  animation: flail 0.15s ease-in-out infinite alternate;
+}
+
+body.fall.chute #parachute {
+  display: inline;
+  transform-origin: 40px -44px;
+  animation: chute-sway 1.2s ease-in-out infinite;
+}
+
+body.fall.chute .arm-l,
+body.fall.chute .arm-r {
+  animation: none;
+  rotate: 0deg;
+}
+
+body.fall.scared #eyes-n {
+  display: none;
+}
+
+body.fall.scared #eyes-x {
+  display: inline;
+}
+
+body.pat #eyes-h {
+  display: inline;
+}
+
+body.pat #eyes-n {
+  display: none;
+}
+
+body.pat #hearts {
+  display: inline;
+}
+
+body.pat #bob-group {
+  animation: happy-bounce 0.6s ease-in-out infinite;
+}
+
+body.pat .arm-l {
+  animation: arm-flap-l 0.6s ease-in-out infinite;
+}
+
+body.pat .arm-r {
+  animation: arm-flap-r 0.6s ease-in-out infinite;
+}
+
+body.pat .heart-1 {
+  animation: heart-float 1.2s ease-out infinite;
+}
+
+body.pat .heart-2 {
+  animation: heart-float 1.2s ease-out infinite 0.6s;
+}
+
+body.think #think-bubble {
+  display: inline;
+  animation: bubble-pulse 2s ease-in-out infinite;
+  transform-origin: 40px -21px;
+}
+
+body.think #bob-group {
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+body.think .arm-l {
+  animation: arm-sway-l 1.8s ease-in-out infinite;
+}
+
+body.think .arm-r {
+  animation: arm-sway-r 1.8s ease-in-out infinite;
+}

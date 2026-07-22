@@ -1,0 +1,83 @@
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+}
+
+#stage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+#creature {
+  image-rendering: pixelated;
+  cursor: grab;
+  pointer-events: none;
+}
+
+#creature * {
+  pointer-events: visiblePainted;
+}
+
+body.held #creature {
+  cursor: grabbing;
+}
+
+#flip-group {
+  transform-origin: 40px 20px;
+  transition: transform 0.15s ease-out;
+}
+
+#bob-group {
+  transform-origin: 40px 40px;
+}
+
+.arm-l {
+  transform-origin: 10px 20px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.arm-r {
+  transform-origin: 70px 20px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.leg {
+  transform-origin: 0 40px;
+}
+
+#head-zone {
+  fill: transparent;
+  pointer-events: all;
+}
+
+#board,
+#laptop,
+#hearts,
+#eyes-h,
+#eyes-x,
+#headphones,
+#dj-table,
+#notes,
+#ball,
+#cup,
+#parachute,
+#think-bubble {
+  display: none;
+}
+
+.eye {
+  transform-origin: center;
+  translate: 0 0;
+  scale: 1 1;
+  transition: translate 0.2s, scale 0.15s;
+}
+
+.eye.blinking {
+  animation: blink 0.25s ease-in-out 1;
+}
