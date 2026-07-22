@@ -21,7 +21,7 @@ except when you're actually touching the pet.
 - **Autonomous wandering** — walks back and forth along the taskbar inside
   `screen.getPrimaryDisplay().workArea`, so it never overlaps the taskbar.
 - **Random tricks** — walking is the default behavior; every so often it
-  picks one of: `code`, `music`, `soccer`, `jump`, `climb`, `surf`.
+  picks one of: `code`, `music`, `soccer`, `jump`, `climb`, `surf`, `think`, `drink coffe`
 - **AFK mode** — if your mouse sits still for a while, the pet wanders over
   and hangs around your cursor instead of doing its own thing.
 - **Drag and drop** — click and hold the pet to pick it up, drop it anywhere
