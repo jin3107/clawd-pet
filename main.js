@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, Tray, Menu, ipcMain, Notification } = require('electron');
+const { app, BrowserWindow, screen, Tray, Menu, ipcMain } = require('electron');
 const path = require('path');
 
 if (!app.requestSingleInstanceLock()) {
@@ -26,16 +26,20 @@ const CARE_MESSAGES = [
   'Làm việc mệt thì nghỉ chút đã, không vội đâu.',
   'Vẫn đang ở đây với bạn nè.',
 ];
-const CARE_MIN_MS = 15 * 60 * 1000;
-const CARE_MAX_MS = 30 * 60 * 1000;
+const CARE_MIN_MS = 60 * 60 * 1000;
+const CARE_MAX_MS = 75 * 60 * 1000;
 const LOGIN_START_DELAY_MS = 45 * 1000;
+const BUBBLE_W = 220;
+const HEAD_ANCHOR_Y = 18;
 
 const FAST_MS = 30;
 const SLOW_MS = 150;
 const STATIONARY = new Set(['idle', 'jump', 'code', 'music', 'soccer', 'pat', 'think', 'coffee']);
 
 let win;
+let bubbleWin;
 let tray;
+let careBubbleActive = false;
 let currentX = 0;
 let currentY = 0;
 let targetX = 0;
@@ -51,6 +55,7 @@ let lastX = -1;
 let lastY = -1;
 let lastSentState = null;
 let lastSentFacing = null;
+let lastSentCareMsg = null;
 let scheduledDelay = FAST_MS;
 
 let dragging = false;
@@ -107,6 +112,35 @@ function createWindow() {
   startIdle();
   scheduledDelay = FAST_MS;
   setTimeout(tick, scheduledDelay);
+}
+
+function createBubbleWindow() {
+  bubbleWin = new BrowserWindow({
+    width: BUBBLE_W,
+    height: 10,
+    x: 0,
+    y: 0,
+    transparent: true,
+    backgroundColor: '#00000000',
+    frame: false,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    resizable: false,
+    focusable: false,
+    hasShadow: false,
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'bubblePreload.js'),
+      contextIsolation: true,
+    },
+  });
+  bubbleWin.setAlwaysOnTop(true, 'screen-saver');
+  bubbleWin.setIgnoreMouseEvents(true, { forward: true });
+  bubbleWin.loadFile(path.join(__dirname, 'renderer', 'bubble.html'));
+}
+
+function hideBubble() {
+  if (bubbleWin && !bubbleWin.isDestroyed()) bubbleWin.hide();
 }
 
 function pickTarget(minDist) {
@@ -269,6 +303,11 @@ function tick() {
     }
   }
 
+  if (careBubbleActive && state !== 'think') {
+    careBubbleActive = false;
+    hideBubble();
+  }
+
   if (!win || win.isDestroyed()) return;
 
   const nx = Math.round(currentX);
@@ -285,10 +324,11 @@ function tick() {
     state === 'coffee' ? `coffee-${coffeePhase}` :
     state === 'fall' ? `fall${fallChute ? '-chute' : ''}${fallScared ? '-scared' : ''}` :
     state;
-  if (sentState !== lastSentState || facing !== lastSentFacing) {
-    win.webContents.send('pet-state', { state: sentState, facing });
+  if (sentState !== lastSentState || facing !== lastSentFacing || careBubbleActive !== lastSentCareMsg) {
+    win.webContents.send('pet-state', { state: sentState, facing, careMsg: careBubbleActive });
     lastSentState = sentState;
     lastSentFacing = facing;
+    lastSentCareMsg = careBubbleActive;
   }
 
   const nextDelay = !dragging && STATIONARY.has(state) ? SLOW_MS : FAST_MS;
@@ -305,6 +345,19 @@ ipcMain.on('pet-drag-start', (_e, { x, y }) => {
   patting = false;
   dragOffX = x;
   dragOffY = y;
+  if (careBubbleActive) {
+    careBubbleActive = false;
+    hideBubble();
+  }
+});
+
+ipcMain.on('bubble-size', (_e, { w, h }) => {
+  if (!bubbleWin || bubbleWin.isDestroyed() || !careBubbleActive) return;
+  const wa = workArea();
+  const bx = Math.min(Math.max(Math.round(currentX + PET_W / 2 - w / 2), wa.x), wa.x + wa.width - w);
+  const by = Math.round(currentY + HEAD_ANCHOR_Y - h);
+  bubbleWin.setBounds({ x: bx, y: by, width: w, height: h });
+  bubbleWin.showInactive();
 });
 
 ipcMain.on('pet-drag-end', () => {
@@ -324,16 +377,18 @@ ipcMain.on('pet-pat', (_e, on) => {
 function scheduleCareMessage() {
   const delay = CARE_MIN_MS + Math.random() * (CARE_MAX_MS - CARE_MIN_MS);
   setTimeout(() => {
-    if (Notification.isSupported()) {
-      const msg = CARE_MESSAGES[Math.floor(Math.random() * CARE_MESSAGES.length)];
-      new Notification({
-        title: 'Clawd',
-        body: msg,
-        icon: path.join(__dirname, 'renderer', 'tray-icon.png'),
-      }).show();
-    }
+    showCareMessage();
     scheduleCareMessage();
   }, delay);
+}
+
+function showCareMessage() {
+  if (!win || win.isDestroyed() || dragging || state === 'fall' || state === 'climb') return;
+  const msg = CARE_MESSAGES[Math.floor(Math.random() * CARE_MESSAGES.length)];
+  state = 'think';
+  frames = Math.max(200, Math.min(360, msg.length * 9));
+  careBubbleActive = true;
+  if (bubbleWin && !bubbleWin.isDestroyed()) bubbleWin.webContents.send('bubble-text', msg);
 }
 
 function buildTrayMenu() {
@@ -362,6 +417,7 @@ function buildTrayMenu() {
 
 function startApp() {
   createWindow();
+  createBubbleWindow();
 
   tray = new Tray(path.join(__dirname, 'renderer', 'tray-icon.png'));
   tray.setToolTip('Pixel Pet');

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Bubble</title>
+<style>
+  html, body {
+    margin: 0;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  #wrap {
+    display: inline-block;
+  }
+
+  #bubble {
+    box-sizing: border-box;
+    max-width: 220px;
+    padding: 8px 10px;
+    background: #F2F2F2;
+    border: 2px solid #2B2B2B;
+    color: #2B2B2B;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    word-wrap: break-word;
+  }
+
+  #tail {
+    width: 8px;
+    height: 8px;
+    margin: -2px auto 0;
+    background: #F2F2F2;
+    border: 2px solid #2B2B2B;
+    border-top: none;
+  }
+</style>
+</head>
+<body>
+  <div id="wrap">
+    <div id="bubble"></div>
+    <div id="tail"></div>
+  </div>
+  <script src="bubble.js"></script>
+</body>
+</html>

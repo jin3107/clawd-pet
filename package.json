@@ -1,6 +1,6 @@
 {
   "name": "clawd-pet",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A tiny pixel-art crab that walks the taskbar on your Windows desktop",
   "main": "main.js",
   "license": "MIT",
@@ -22,6 +22,7 @@
     "files": [
       "main.js",
       "preload.js",
+      "bubblePreload.js",
       "renderer/**/*"
     ],
     "win": {

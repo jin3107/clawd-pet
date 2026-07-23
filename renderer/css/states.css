@@ -293,6 +293,11 @@ body.think #think-bubble {
   display: inline;
   animation: bubble-pulse 2s ease-in-out infinite;
   transform-origin: 40px -21px;
+  translate: 0 -6px;
+}
+
+body.think.care-msg #think-bubble {
+  display: none;
 }
 
 body.think #bob-group {

@@ -18,7 +18,7 @@ function scheduleBlink() {
 }
 scheduleBlink();
 
-window.petAPI.onState(({ state, facing }) => {
+window.petAPI.onState(({ state, facing, careMsg }) => {
   const base = state.startsWith('climb') ? 'climb' : state.startsWith('code') ? 'code' : state.startsWith('coffee') ? 'coffee' : state.startsWith('fall') ? 'fall' : state;
   STATES.forEach((s) => document.body.classList.toggle(s, s === base));
   document.body.classList.toggle('hang', state === 'climb-pause');
@@ -26,6 +26,7 @@ window.petAPI.onState(({ state, facing }) => {
   document.body.classList.toggle('sipping', state === 'coffee-sip');
   document.body.classList.toggle('chute', state.startsWith('fall') && state.includes('chute'));
   document.body.classList.toggle('scared', state.startsWith('fall') && state.includes('scared'));
+  document.body.classList.toggle('care-msg', !!careMsg);
   flipGroup.style.transform = `scaleX(${facing})`;
 });
 
