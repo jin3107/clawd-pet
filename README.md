@@ -25,10 +25,6 @@ sometimes with a parachute, sometimes without.
 Built with Electron: transparent, frameless, always-on-top, and click-through
 except when you're actually touching the pet.
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=jin3107/clawd-pet&type=Date)](https://star-history.com/#jin3107/clawd-pet&Date)
-
 ## Features
 
 - **Autonomous wandering** — walks back and forth along the taskbar inside
