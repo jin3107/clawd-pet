@@ -1,6 +1,6 @@
 {
   "name": "clawd-pet",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A tiny pixel-art crab that walks the taskbar on your Windows desktop",
   "main": "main.js",
   "license": "MIT",
@@ -21,8 +21,10 @@
     "productName": "Pixel Pet",
     "files": [
       "main.js",
+      "config.js",
       "preload.js",
       "bubblePreload.js",
+      "settingsPreload.js",
       "renderer/**/*"
     ],
     "win": {
@@ -32,12 +34,13 @@
     },
     "nsis": {
       "oneClick": false,
-      "perMachine": false,
+      "perMachine": true,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Pixel Pet",
-      "artifactName": "clawd-pet.exe"
+      "artifactName": "clawd-pet.exe",
+      "uninstallDisplayName": "${productName} ${version}"
     },
     "directories": {
       "output": "dist"

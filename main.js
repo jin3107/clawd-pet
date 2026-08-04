@@ -1,5 +1,6 @@
 const { app, BrowserWindow, screen, Tray, Menu, ipcMain } = require('electron');
 const path = require('path');
+const { DEFAULT_GREETINGS, loadConfig, saveConfig, greetingsFor } = require('./config');
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -17,18 +18,13 @@ const CLIMB_SPEED = 1.2;
 const CLIMB_H = 90;
 const AFK_MS = 12000;
 
-const CARE_MESSAGES = [
-  'Uống nước chưa đó?',
-  'Ngồi lâu rồi, đứng dậy vươn vai xíu đi.',
-  'Nay ổn không?',
-  'Nhớ ăn uống đúng giờ nha.',
-  'Mỏi mắt chưa? Nhìn ra xa xíu đi.',
-  'Làm việc mệt thì nghỉ chút đã, không vội đâu.',
-  'Vẫn đang ở đây với bạn nè.',
-];
-const CARE_MIN_MS = 60 * 60 * 1000;
-const CARE_MAX_MS = 75 * 60 * 1000;
+let petConfig = null;
+let CARE_MESSAGES = [];
+let CARE_MIN_MS = 60 * 60 * 1000;
+let CARE_MAX_MS = 75 * 60 * 1000;
 const LOGIN_START_DELAY_MS = 45 * 1000;
+const SETTINGS_W = 460;
+const SETTINGS_H = 460;
 const BUBBLE_W = 220;
 const HEAD_ANCHOR_Y = 18;
 
@@ -66,6 +62,11 @@ let patting = false;
 let lastCursor = { x: 0, y: 0 };
 let lastCursorMove = Date.now();
 let tickN = 0;
+let fleeing = false;
+
+const DODGE_MARGIN = 8;
+const DODGE_DIST = 260;
+const DODGEABLE = new Set(['idle', 'code', 'jump', 'music', 'soccer', 'think', 'coffee', 'walk']);
 
 function workArea() {
   return screen.getPrimaryDisplay().workArea;
@@ -158,6 +159,7 @@ function pickTarget(minDist) {
 function startIdle() {
   state = 'idle';
   frames = 60 + Math.random() * 180;
+  fleeing = false;
 }
 
 function nextAction() {
@@ -228,6 +230,15 @@ function tick() {
   }
 
   const by = baseY();
+
+  if (!dragging && !patting && !fleeing && DODGEABLE.has(state) &&
+      cur.x > currentX - DODGE_MARGIN && cur.x < currentX + PET_W + DODGE_MARGIN &&
+      cur.y > currentY - DODGE_MARGIN && cur.y < currentY + PET_H + DODGE_MARGIN) {
+    const away = cur.x < currentX + PET_W / 2 ? 1 : -1;
+    targetX = clampX(currentX + away * DODGE_DIST);
+    state = 'walk';
+    fleeing = true;
+  }
 
   if (dragging) {
     state = 'held';
@@ -409,18 +420,82 @@ function buildTrayMenu() {
           buildTrayMenu();
         },
       },
+      { label: 'Cài đặt...', click: () => createSettingsWindow(false) },
       { type: 'separator' },
       { label: 'Exit', click: () => app.quit() },
     ])
   );
 }
 
+function applyConfig(config) {
+  petConfig = config;
+  CARE_MESSAGES = greetingsFor(config);
+  CARE_MIN_MS = config.intervalMinMin * 60 * 1000;
+  CARE_MAX_MS = config.intervalMaxMin * 60 * 1000;
+  if (tray && !tray.isDestroyed()) tray.setToolTip(config.petName);
+}
+
+let settingsWin = null;
+
+function createSettingsWindow(isFirstRun) {
+  if (settingsWin && !settingsWin.isDestroyed()) {
+    settingsWin.focus();
+    return;
+  }
+
+  const wa = workArea();
+  let saved = false;
+
+  settingsWin = new BrowserWindow({
+    width: SETTINGS_W,
+    height: SETTINGS_H,
+    x: Math.round(wa.x + wa.width / 2 - SETTINGS_W / 2),
+    y: Math.round(wa.y + wa.height / 2 - SETTINGS_H / 2),
+    resizable: false,
+    title: 'Pixel Pet - Cài đặt',
+    autoHideMenuBar: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'settingsPreload.js'),
+      contextIsolation: true,
+    },
+  });
+  settingsWin.loadFile(path.join(__dirname, 'renderer', 'settings.html'));
+
+  const onSave = (_e, data) => {
+    saved = true;
+    applyConfig(saveConfigAndReturn(data));
+    settingsWin.close();
+    if (isFirstRun) startApp();
+  };
+  ipcMain.on('settings-save', onSave);
+
+  settingsWin.on('closed', () => {
+    ipcMain.removeListener('settings-save', onSave);
+    settingsWin = null;
+    if (isFirstRun && !saved) {
+      applyConfig(saveConfigAndReturn({}));
+      startApp();
+    }
+  });
+}
+
+function saveConfigAndReturn(data) {
+  const config = { ...loadConfig(), ...data, firstRunDone: true };
+  saveConfig(config);
+  return config;
+}
+
+ipcMain.handle('settings-get-initial', () => ({
+  ...(petConfig || loadConfig()),
+  defaultGreetings: DEFAULT_GREETINGS,
+}));
+
 function startApp() {
   createWindow();
   createBubbleWindow();
 
   tray = new Tray(path.join(__dirname, 'renderer', 'tray-icon.png'));
-  tray.setToolTip('Pixel Pet');
+  tray.setToolTip(petConfig.petName);
   buildTrayMenu();
   scheduleCareMessage();
 
@@ -435,6 +510,13 @@ app.whenReady().then(() => {
     app.setLoginItemSettings({ openAtLogin: true });
   }
 
+  const config = loadConfig();
+  if (!config.firstRunDone) {
+    createSettingsWindow(true);
+    return;
+  }
+
+  applyConfig(config);
   const delay = loginSettings.wasOpenedAtLogin ? LOGIN_START_DELAY_MS : 0;
   setTimeout(startApp, delay);
 });

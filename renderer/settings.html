@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Pixel Pet - Cài đặt</title>
+<style>
+  html, body {
+    margin: 0;
+    background: #F2F2F2;
+    color: #2B2B2B;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 13px;
+  }
+
+  #wrap {
+    padding: 16px 18px;
+    box-sizing: border-box;
+  }
+
+  h1 {
+    font-size: 15px;
+    margin: 0 0 14px;
+  }
+
+  .field {
+    margin-bottom: 14px;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 2px solid #2B2B2B;
+    background: #FFFFFF;
+    color: #2B2B2B;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 70px;
+  }
+
+  .check-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .check-row label {
+    font-weight: normal;
+    margin: 0;
+  }
+
+  #greetingList {
+    max-height: 140px;
+    overflow-y: auto;
+    border: 2px solid #2B2B2B;
+    background: #FFFFFF;
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+
+  .interval-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .interval-row input {
+    width: 70px;
+  }
+
+  #error {
+    color: #B00020;
+    font-size: 12px;
+    min-height: 16px;
+    margin-bottom: 8px;
+  }
+
+  #save {
+    border: 2px solid #2B2B2B;
+    background: #2B2B2B;
+    color: #F2F2F2;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+
+  #save:hover {
+    background: #444;
+  }
+</style>
+</head>
+<body>
+  <div id="wrap">
+    <h1>Chào bạn! Đặt tên và tuỳ chỉnh cho pet của bạn nhé</h1>
+
+    <div class="field">
+      <label for="petName">Tên pet</label>
+      <input type="text" id="petName" maxlength="30" placeholder="Pixel Pet">
+    </div>
+
+    <div class="field">
+      <label>Câu hỏi thăm (chọn câu muốn dùng)</label>
+      <div id="greetingList"></div>
+      <label for="customGreetings">Hoặc tự nhập thêm (mỗi dòng một câu)</label>
+      <textarea id="customGreetings" placeholder="Câu hỏi thăm của riêng bạn..."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Khoảng cách giữa các lần hỏi thăm (phút)</label>
+      <div class="interval-row">
+        <input type="text" id="intervalMin" inputmode="numeric">
+        <span>đến</span>
+        <input type="text" id="intervalMax" inputmode="numeric">
+      </div>
+    </div>
+
+    <div id="error"></div>
+    <button id="save">Lưu và bắt đầu</button>
+  </div>
+  <script src="settings.js"></script>
+</body>
+</html>
