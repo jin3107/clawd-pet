@@ -452,7 +452,7 @@ function createSettingsWindow(isFirstRun) {
     x: Math.round(wa.x + wa.width / 2 - SETTINGS_W / 2),
     y: Math.round(wa.y + wa.height / 2 - SETTINGS_H / 2),
     resizable: false,
-    title: 'Pixel Pet - Cài đặt',
+    title: 'Clawd Pet - Cài đặt',
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'settingsPreload.js'),

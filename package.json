@@ -18,7 +18,7 @@
   },
   "build": {
     "appId": "com.rainy.pixelpet",
-    "productName": "Pixel Pet",
+    "productName": "Clawd Pet",
     "files": [
       "main.js",
       "config.js",
@@ -38,7 +38,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Pixel Pet",
+      "shortcutName": "Clawd Pet",
       "artifactName": "clawd-pet.exe",
       "uninstallDisplayName": "${productName} ${version}"
     },
