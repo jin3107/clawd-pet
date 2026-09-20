@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same rects/colors as PetSprite.kt's torso+eyes, just repositioned into
+     the adaptive icon's 108x108 canvas (legs dropped — too fine-grained to
+     read at launcher-icon size). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#D9835F"
+        android:pathData="M24,33 h60 v40 h-60 Z" />
+    <path
+        android:fillColor="#242320"
+        android:pathData="M30,39 h8 v8 h-8 Z" />
+    <path
+        android:fillColor="#242320"
+        android:pathData="M70,39 h8 v8 h-8 Z" />
+</vector>

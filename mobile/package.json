@@ -1,0 +1,24 @@
+{
+  "name": "mobile",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@expo/metro-runtime": "~57.0.16",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo": "~57.0.24",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-web": "^0.21.2",
+    "react-native-webview": "13.16.1"
+  },
+  "scripts": {
+    "build:pet-html": "node scripts/build-pet-html.js",
+    "start": "npm run build:pet-html && expo start",
+    "android": "npm run build:pet-html && expo start --android",
+    "ios": "npm run build:pet-html && expo start --ios",
+    "web": "npm run build:pet-html && expo start --web"
+  },
+  "private": true
+}

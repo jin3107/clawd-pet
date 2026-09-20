@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Clawd Pet</string>
+    <string name="wallpaper_description">Clawd Pet đi lại trên màn hình chính</string>
+    <string name="set_wallpaper_button">Đặt làm hình nền</string>
+    <string name="home_hint">Đặt xong, về home screen sẽ thấy pet đi lại. Mở app khác sẽ che nó lại — đúng như yêu cầu.</string>
+    <string name="background_hint">Live wallpaper sẽ thay hình nền hiện tại của bạn. Chọn ảnh nền đang dùng ở dưới để không bị mất — pet sẽ chạy trên đúng ảnh đó.</string>
+    <string name="pick_background_button">Chọn ảnh nền</string>
+    <string name="change_background_button">Đổi ảnh nền</string>
+    <string name="clear_background_button">Bỏ ảnh nền</string>
+    <string name="settings_button">Cài đặt</string>
+    <string name="settings_title">Cài đặt Clawd Pet</string>
+    <string name="pet_name_label">Tên pet</string>
+    <string name="default_greetings_label">Câu chào mặc định</string>
+    <string name="custom_greetings_label">Câu chào tự thêm (mỗi dòng 1 câu)</string>
+    <string name="interval_label">Khoảng thời gian nhắc (phút)</string>
+    <string name="interval_to">đến</string>
+    <string name="cancel_button">Huỷ</string>
+    <string name="save_button">Lưu</string>
+</resources>
