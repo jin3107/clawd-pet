@@ -67,7 +67,8 @@ body.held #creature {
 #ball,
 #cup,
 #parachute,
-#think-bubble {
+#think-bubble,
+#butterfly {
   display: none;
 }
 
@@ -80,4 +81,13 @@ body.held #creature {
 
 .eye.blinking {
   animation: blink 0.25s ease-in-out 1;
+}
+
+.tail {
+  animation: tail-wag 1.8s ease-in-out infinite;
+}
+
+body.held .tail,
+body.fall .tail {
+  animation: none;
 }

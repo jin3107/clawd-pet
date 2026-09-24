@@ -25,6 +25,7 @@
       "preload.js",
       "bubblePreload.js",
       "settingsPreload.js",
+      "modelPickerPreload.js",
       "renderer/**/*"
     ],
     "win": {

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Chọn pet</title>
+<style>
+  html, body {
+    margin: 0;
+    background: #F2F2F2;
+    color: #2B2B2B;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 13px;
+    user-select: none;
+  }
+
+  #wrap {
+    padding: 22px 20px 18px;
+    box-sizing: border-box;
+  }
+
+  h1 {
+    font-size: 15px;
+    margin: 0 0 20px;
+    text-align: center;
+    font-weight: 700;
+  }
+
+  #cards {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    flex: 1;
+    border: 2px solid #2B2B2B;
+    background: #FFF;
+    padding: 16px 8px 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.08s;
+  }
+
+  .card:hover {
+    background: #EAEAEA;
+  }
+
+  .card.selected {
+    background: #2B2B2B;
+    color: #F2F2F2;
+  }
+
+  .card img {
+    width: 72px;
+    height: 72px;
+    image-rendering: pixelated;
+    display: block;
+  }
+
+  .card-name {
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  #next {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    border: 2px solid #2B2B2B;
+    background: #2B2B2B;
+    color: #F2F2F2;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 9px 0;
+    cursor: pointer;
+  }
+
+  #next:disabled {
+    background: #CCC;
+    border-color: #CCC;
+    color: #999;
+    cursor: not-allowed;
+  }
+
+  #next:not(:disabled):hover {
+    background: #444;
+  }
+</style>
+</head>
+<body>
+  <div id="wrap">
+    <h1>Chọn người bạn đồng hành của bạn!</h1>
+
+    <div id="cards">
+      <div class="card" data-model="clawd">
+        <svg width="72" height="72" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="0" width="60" height="40" fill="#D9835F"/>
+          <rect x="16" y="6" width="8" height="8" fill="#242320"/>
+          <rect x="56" y="6" width="8" height="8" fill="#242320"/>
+          <rect x="-7" y="14" width="17" height="12" fill="#D9835F"/>
+          <rect x="70" y="14" width="17" height="12" fill="#D9835F"/>
+          <g fill="#C46F4D">
+            <rect x="10" y="40" width="7.8" height="15"/>
+            <rect x="27.4" y="40" width="7.8" height="15"/>
+            <rect x="44.8" y="40" width="7.8" height="15"/>
+            <rect x="62.2" y="40" width="7.8" height="15"/>
+          </g>
+        </svg>
+        <div class="card-name">🦀 Clawd</div>
+      </div>
+
+      <div class="card" data-model="cat">
+        <img src="img/cat.png" alt="Mèo">
+        <div class="card-name">🐱 Mèo</div>
+      </div>
+
+      <div class="card" data-model="sheep">
+        <img src="img/sheep.png" alt="Cừu">
+        <div class="card-name">🐑 Cừu</div>
+      </div>
+    </div>
+
+    <button id="next" disabled>Tiếp tục →</button>
+  </div>
+  <script src="model-picker.js"></script>
+</body>
+</html>

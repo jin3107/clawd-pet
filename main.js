@@ -25,12 +25,14 @@ let CARE_MAX_MS = 75 * 60 * 1000;
 const LOGIN_START_DELAY_MS = 45 * 1000;
 const SETTINGS_W = 460;
 const SETTINGS_H = 460;
+const MODEL_PICKER_W = 420;
+const MODEL_PICKER_H = 280;
 const BUBBLE_W = 220;
 const HEAD_ANCHOR_Y = 18;
 
 const FAST_MS = 30;
 const SLOW_MS = 150;
-const STATIONARY = new Set(['idle', 'jump', 'code', 'music', 'soccer', 'pat', 'think', 'coffee']);
+const STATIONARY = new Set(['idle', 'jump', 'code', 'music', 'soccer', 'pat', 'think', 'coffee', 'butterfly']);
 
 let win;
 let bubbleWin;
@@ -66,7 +68,7 @@ let fleeing = false;
 
 const DODGE_MARGIN = 8;
 const DODGE_DIST = 260;
-const DODGEABLE = new Set(['idle', 'code', 'jump', 'music', 'soccer', 'think', 'coffee', 'walk']);
+const DODGEABLE = new Set(['idle', 'code', 'jump', 'music', 'soccer', 'think', 'coffee', 'walk', 'butterfly']);
 
 function workArea() {
   return screen.getPrimaryDisplay().workArea;
@@ -181,7 +183,13 @@ function nextAction() {
     return;
   }
 
-  const tricks = ['code', 'jump', 'music', 'soccer', 'climb', 'surf', 'think', 'coffee'];
+  // Cat/sheep skip coffee/music/code/surf/soccer tricks per user request; keep the full set for Clawd.
+  // "butterfly" (pounce-at-a-butterfly) is cat-only — the prop only exists in the cat template.
+  const tricks = petConfig?.petModel === 'clawd'
+    ? ['code', 'jump', 'music', 'soccer', 'climb', 'surf', 'think', 'coffee']
+    : petConfig?.petModel === 'cat'
+      ? ['jump', 'climb', 'think', 'butterfly']
+      : ['jump', 'climb', 'think'];
   const trick = tricks[Math.floor(Math.random() * tricks.length)];
   switch (trick) {
     case 'code':
@@ -213,6 +221,10 @@ function nextAction() {
     case 'climb':
       state = 'climb';
       climbPhase = 'up';
+      break;
+    case 'butterfly':
+      state = 'butterfly';
+      frames = 200 + Math.random() * 150;
       break;
     case 'surf':
       state = 'surf';
@@ -435,6 +447,58 @@ function applyConfig(config) {
   if (tray && !tray.isDestroyed()) tray.setToolTip(config.petName);
 }
 
+ipcMain.handle('pet-get-model', () => (petConfig?.petModel || loadConfig().petModel || 'clawd'));
+
+let modelPickerWin = null;
+
+function createModelPickerWindow(isFirstRun) {
+  if (modelPickerWin && !modelPickerWin.isDestroyed()) {
+    modelPickerWin.focus();
+    return;
+  }
+
+  const wa = workArea();
+  let picked = false;
+
+  modelPickerWin = new BrowserWindow({
+    width: MODEL_PICKER_W,
+    height: MODEL_PICKER_H,
+    x: Math.round(wa.x + wa.width / 2 - MODEL_PICKER_W / 2),
+    y: Math.round(wa.y + wa.height / 2 - MODEL_PICKER_H / 2),
+    resizable: false,
+    title: 'Clawd Pet - Chọn pet',
+    autoHideMenuBar: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'modelPickerPreload.js'),
+      contextIsolation: true,
+    },
+  });
+  modelPickerWin.loadFile(path.join(__dirname, 'renderer', 'model-picker.html'));
+
+  const onPick = (_e, model) => {
+    picked = true;
+    const config = { ...loadConfig(), petModel: model };
+    saveConfig(config);
+    petConfig = config;
+    modelPickerWin.close();
+    createSettingsWindow(isFirstRun);
+  };
+  ipcMain.once('model-pick', onPick);
+
+  modelPickerWin.on('closed', () => {
+    ipcMain.removeListener('model-pick', onPick);
+    modelPickerWin = null;
+    if (!picked) {
+      // User closed the picker without choosing — keep the default model
+      // (loadConfig()'s fallback) and continue into settings as normal.
+      const config = { ...loadConfig(), petModel: loadConfig().petModel || 'clawd' };
+      saveConfig(config);
+      petConfig = config;
+      createSettingsWindow(isFirstRun);
+    }
+  });
+}
+
 let settingsWin = null;
 
 function createSettingsWindow(isFirstRun) {
@@ -511,8 +575,8 @@ app.whenReady().then(() => {
   }
 
   const config = loadConfig();
-  if (!config.firstRunDone) {
-    createSettingsWindow(true);
+  if (!config.firstRunDone || !config.petModel) {
+    createModelPickerWindow(!config.firstRunDone);
     return;
   }
 

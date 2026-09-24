@@ -14,6 +14,7 @@ const DEFAULT_GREETINGS = [
 
 const DEFAULT_CONFIG = {
   firstRunDone: false,
+  petModel: null, // 'clawd' | 'cat' | 'sheep' — null forces the model picker on first run
   petName: 'Pixel Pet',
   enabledGreetings: [...DEFAULT_GREETINGS],
   customGreetings: [],
