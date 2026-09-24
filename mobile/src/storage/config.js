@@ -14,6 +14,7 @@ export const DEFAULT_GREETINGS = [
 
 export const DEFAULT_CONFIG = {
   petName: 'Clawd Pet',
+  petModel: 'clawd', // 'clawd' | 'cat' | 'sheep'
   enabledGreetings: [...DEFAULT_GREETINGS],
   customGreetings: [],
   intervalMinMin: 60,

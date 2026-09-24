@@ -44,9 +44,13 @@ export default function WidgetBox({ settings, width = WIDGET_W, height = WIDGET_
   return (
     <View style={[styles.frame, { width, height }]}>
       {Platform.OS === 'web' ? (
-        <WebPreview html={htmlWithSettings} />
+        <WebPreview key={settings?.petModel} html={htmlWithSettings} />
       ) : (
         <WebView
+          // The model (clawd/cat/sheep) picks which <script id="tpl-*"> engine.js
+          // swaps into #creature once, at boot — remount the WebView on change
+          // instead of trying to hot-swap the sprite via injected JS.
+          key={settings?.petModel}
           ref={webRef}
           originWhitelist={['*']}
           source={{ html: PET_HTML }}
@@ -68,6 +72,7 @@ function toEngineSettings(settings) {
   if (!settings) return {};
   return {
     petName: settings.petName,
+    petModel: settings.petModel,
     greetings: [...(settings.enabledGreetings || []), ...(settings.customGreetings || [])],
     intervalMinMin: settings.intervalMinMin,
     intervalMaxMin: settings.intervalMaxMin,

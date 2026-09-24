@@ -16,23 +16,36 @@
 
   const FAST_MS = 30;
   const SLOW_MS = 150;
-  const STATIONARY = new Set(['idle', 'jump', 'code', 'music', 'soccer', 'pat', 'think', 'coffee']);
-  const STATES = ['walk', 'idle', 'surf', 'climb', 'code', 'jump', 'music', 'soccer', 'held', 'fall', 'pat', 'think', 'coffee'];
+  const STATIONARY = new Set(['idle', 'jump', 'code', 'music', 'soccer', 'pat', 'think', 'coffee', 'butterfly']);
+  const STATES = ['walk', 'idle', 'surf', 'climb', 'code', 'jump', 'music', 'soccer', 'held', 'fall', 'pat', 'think', 'coffee', 'butterfly'];
 
   const stage = document.getElementById('stage');
   const petRoot = document.getElementById('pet-root');
   const creature = document.getElementById('creature');
-  const flipGroup = document.getElementById('flip-group');
-  const headZone = document.getElementById('head-zone');
   const bubbleWrap = document.getElementById('bubble-wrap');
   const bubbleText = document.getElementById('bubble-text');
 
   let settings = window.__PET_SETTINGS__ || {
     petName: 'Clawd Pet',
+    petModel: 'clawd',
     greetings: ['Vẫn đang ở đây với bạn nè.'],
     intervalMinMin: 60,
     intervalMaxMin: 75,
   };
+
+  // Three <script type="text/svg-template" id="tpl-*"> blocks live in
+  // index.html (clawd/cat/sheep) — swap the right one's markup into
+  // #creature before wiring up anything that queries elements inside it.
+  const model = settings.petModel || 'clawd';
+  document.body.classList.add(`model-${model}`);
+  const tplEl = document.getElementById(`tpl-${model}`) || document.getElementById('tpl-clawd');
+  creature.innerHTML = tplEl.textContent;
+  // Only the hand-drawn cat/sheep art faces left by default; the original
+  // Clawd sprite already faces right, so it needs no flip negation.
+  const facingSign = model === 'clawd' ? 1 : -1;
+
+  const flipGroup = document.getElementById('flip-group');
+  const headZone = document.getElementById('head-zone');
 
   function boxSize() {
     return { w: stage.clientWidth || PET_W, h: stage.clientHeight || PET_H };
@@ -102,7 +115,12 @@
       return;
     }
 
-    const tricks = ['code', 'jump', 'music', 'soccer', 'climb', 'surf', 'think', 'coffee'];
+    // Cat/sheep skip coffee/music/code/surf/soccer tricks (no props drawn for
+    // them); the cat additionally gets a butterfly-chasing trick.
+    const tricks =
+      model === 'clawd' ? ['code', 'jump', 'music', 'soccer', 'climb', 'surf', 'think', 'coffee'] :
+      model === 'cat' ? ['jump', 'climb', 'think', 'butterfly'] :
+      ['jump', 'climb', 'think'];
     const trick = tricks[Math.floor(Math.random() * tricks.length)];
     switch (trick) {
       case 'code':
@@ -139,6 +157,10 @@
         state = 'surf';
         targetX = pickTarget(Math.max(60, boxSize().w * 0.4));
         break;
+      case 'butterfly':
+        state = 'butterfly';
+        frames = 200 + Math.random() * 150;
+        break;
     }
   }
 
@@ -155,7 +177,7 @@
     document.body.classList.toggle('chute', s.startsWith('fall') && s.includes('chute'));
     document.body.classList.toggle('scared', s.startsWith('fall') && s.includes('scared'));
     document.body.classList.toggle('care-msg', !!careMsg);
-    flipGroup.style.transform = `scaleX(${f})`;
+    flipGroup.style.transform = `scaleX(${facingSign * f})`;
   }
 
   function tick() {

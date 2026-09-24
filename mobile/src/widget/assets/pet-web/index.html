@@ -52,159 +52,473 @@
       <div id="bubble-text"></div>
       <div id="bubble-tail"></div>
     </div>
-    <svg id="creature" width="100" height="65" viewBox="-52 -54 184 120" xmlns="http://www.w3.org/2000/svg">
-      <g id="flip-group">
-        <g id="bob-group">
-          <g id="hearts" fill="#E06C9F">
-            <g class="heart heart-1">
-              <rect x="14" y="-14" width="3" height="3"/>
-              <rect x="20" y="-14" width="3" height="3"/>
-              <rect x="14" y="-11" width="9" height="3"/>
-              <rect x="17" y="-8" width="3" height="3"/>
-            </g>
-            <g class="heart heart-2">
-              <rect x="52" y="-12" width="3" height="3"/>
-              <rect x="58" y="-12" width="3" height="3"/>
-              <rect x="52" y="-9" width="9" height="3"/>
-              <rect x="55" y="-6" width="3" height="3"/>
-            </g>
+    <script type="text/svg-template" id="tpl-clawd">
+    <g id="flip-group">
+      <g id="bob-group">
+        <g id="hearts" fill="#E06C9F">
+          <g class="heart heart-1">
+            <rect x="14" y="-14" width="3" height="3"/>
+            <rect x="20" y="-14" width="3" height="3"/>
+            <rect x="14" y="-11" width="9" height="3"/>
+            <rect x="17" y="-8" width="3" height="3"/>
           </g>
-          <rect id="torso" x="10" y="0" width="60" height="40" fill="#D9835F"/>
-          <g id="eyes-n">
-            <rect class="eye" x="16" y="6" width="8" height="8" fill="#242320"/>
-            <rect class="eye" x="56" y="6" width="8" height="8" fill="#242320"/>
+          <g class="heart heart-2">
+            <rect x="52" y="-12" width="3" height="3"/>
+            <rect x="58" y="-12" width="3" height="3"/>
+            <rect x="52" y="-9" width="9" height="3"/>
+            <rect x="55" y="-6" width="3" height="3"/>
           </g>
-          <g id="eyes-h" fill="#242320">
-            <rect x="15" y="10" width="4" height="4"/>
-            <rect x="19" y="6" width="4" height="4"/>
-            <rect x="23" y="10" width="4" height="4"/>
-            <rect x="55" y="10" width="4" height="4"/>
-            <rect x="59" y="6" width="4" height="4"/>
-            <rect x="63" y="10" width="4" height="4"/>
-          </g>
-          <g id="eyes-x" fill="#242320">
-            <rect x="16" y="6" width="4" height="4"/>
-            <rect x="16" y="14" width="4" height="4"/>
-            <rect x="22" y="10" width="4" height="4"/>
-            <rect x="60" y="6" width="4" height="4"/>
-            <rect x="60" y="14" width="4" height="4"/>
-            <rect x="54" y="10" width="4" height="4"/>
-          </g>
-          <g id="parachute">
-            <rect x="28" y="-70" width="24" height="6" fill="#D9835F"/>
-            <rect x="10" y="-64" width="19" height="6" fill="#F2D9B8"/>
-            <rect x="29" y="-64" width="22" height="6" fill="#D9835F"/>
-            <rect x="51" y="-64" width="19" height="6" fill="#F2D9B8"/>
-            <rect x="-5" y="-58" width="12" height="7" fill="#D9835F"/>
-            <rect x="7"  y="-58" width="22" height="7" fill="#F2D9B8"/>
-            <rect x="29" y="-58" width="22" height="7" fill="#D9835F"/>
-            <rect x="51" y="-58" width="22" height="7" fill="#F2D9B8"/>
-            <rect x="73" y="-58" width="12" height="7" fill="#D9835F"/>
-            <rect x="-15" y="-51" width="22" height="7" fill="#D9835F"/>
-            <rect x="7"   y="-51" width="22" height="7" fill="#F2D9B8"/>
-            <rect x="29"  y="-51" width="22" height="7" fill="#D9835F"/>
-            <rect x="51"  y="-51" width="22" height="7" fill="#F2D9B8"/>
-            <rect x="73"  y="-51" width="22" height="7" fill="#D9835F"/>
-            <rect x="-15" y="-44" width="110" height="2" fill="#8B5A3C"/>
-            <g fill="#55555C">
-              <rect x="-11" y="-42" width="2" height="12"/>
-              <rect x="-6"  y="-30" width="2" height="14"/>
-              <rect x="0"   y="-16" width="2" height="16"/>
-              <rect x="89" y="-42" width="2" height="12"/>
-              <rect x="84" y="-30" width="2" height="14"/>
-              <rect x="78" y="-16" width="2" height="16"/>
-            </g>
-          </g>
-          <g fill="#C46F4D">
-            <rect class="leg leg-a" x="10" y="40" width="7.8" height="15"/>
-            <rect class="leg leg-b" x="27.4" y="40" width="7.8" height="15"/>
-            <rect class="leg leg-a" x="44.8" y="40" width="7.8" height="15"/>
-            <rect class="leg leg-b" x="62.2" y="40" width="7.8" height="15"/>
-          </g>
-          <g id="ball">
-            <rect x="68" y="8" width="7.5" height="7.5" fill="#ECECEC"/>
-            <rect x="75.5" y="8" width="7.5" height="7.5" fill="#242320"/>
-            <rect x="68" y="15.5" width="7.5" height="7.5" fill="#242320"/>
-            <rect x="75.5" y="15.5" width="7.5" height="7.5" fill="#ECECEC"/>
-          </g>
-          <g id="laptop">
-            <g fill="#6E7987">
-              <rect x="86"   y="46" width="28" height="5"/>
-              <rect x="87.5" y="41" width="28" height="5"/>
-              <rect x="89"   y="36" width="28" height="5"/>
-              <rect x="90.5" y="31" width="28" height="5"/>
-              <rect x="92"   y="26" width="28" height="5"/>
-              <rect x="93.5" y="21" width="28" height="5"/>
-            </g>
-            <g fill="#F2F2F2">
-              <rect x="95" y="35" width="3" height="3"/>
-              <rect x="98" y="32" width="3" height="3"/>
-              <rect x="98" y="38" width="3" height="3"/>
-              <rect x="102" y="38" width="3" height="3"/>
-              <rect x="104" y="35" width="3" height="3"/>
-              <rect x="106" y="32" width="3" height="3"/>
-              <rect x="110" y="32" width="3" height="3"/>
-              <rect x="110" y="38" width="3" height="3"/>
-              <rect x="113" y="35" width="3" height="3"/>
-            </g>
-            <rect x="64" y="51" width="46" height="4" fill="#5B6B7A"/>
-            <g fill="#7C8CA0">
-              <rect x="66" y="52" width="4" height="2"/>
-              <rect x="72" y="52" width="4" height="2"/>
-              <rect x="78" y="52" width="4" height="2"/>
-              <rect x="84" y="52" width="4" height="2"/>
-              <rect x="90" y="52" width="4" height="2"/>
-              <rect x="96" y="52" width="4" height="2"/>
-              <rect x="102" y="52" width="4" height="2"/>
-            </g>
-          </g>
-          <rect class="arm arm-l" x="-7" y="14" width="17" height="12" fill="#D9835F"/>
-          <rect class="arm arm-r" x="70" y="14" width="17" height="12" fill="#D9835F"/>
-          <g id="headphones">
-            <rect x="8" y="-2" width="64" height="6" fill="#3B3B42"/>
-            <rect x="2" y="4" width="10" height="14" fill="#A9CDC7"/>
-            <rect x="68" y="4" width="10" height="14" fill="#A9CDC7"/>
-          </g>
-          <g id="dj-table">
-            <rect x="6" y="34" width="68" height="6" fill="#55555C"/>
-            <rect x="16" y="26" width="14" height="10" fill="#3B7FC4"/>
-            <rect x="50" y="26" width="14" height="10" fill="#ECECEC"/>
-          </g>
-          <g id="notes">
-            <g class="note note-1" fill="#3B3B42">
-              <rect x="76" y="-4" width="2" height="9"/>
-              <rect x="72" y="2" width="4" height="4"/>
-              <rect x="76" y="-4" width="5" height="2"/>
-            </g>
-          </g>
-          <g id="cup">
-            <g id="steam" fill="#ABABAB">
-              <rect x="76" y="1" width="1.5" height="3"/>
-              <rect x="77.5" y="-2" width="1.5" height="3"/>
-              <rect x="82" y="1" width="1.5" height="3"/>
-              <rect x="80.5" y="-2" width="1.5" height="3"/>
-            </g>
-            <rect x="74" y="7" width="12" height="10" fill="#F2E9DC"/>
-            <rect x="76" y="7" width="8" height="2" fill="#4A2E1E"/>
-            <rect x="86" y="9" width="4" height="1.5" fill="#F2E9DC"/>
-            <rect x="88.5" y="9" width="1.5" height="5" fill="#F2E9DC"/>
-            <rect x="86" y="12.5" width="4" height="1.5" fill="#F2E9DC"/>
-          </g>
-          <g id="think-bubble" fill="#F2F2F2">
-            <rect x="30" y="-28" width="20" height="14"/>
-            <rect x="26" y="-24" width="6" height="6"/>
-            <rect x="50" y="-24" width="6" height="6"/>
-            <rect x="34" y="-10" width="4" height="4"/>
-            <rect x="27" y="-4" width="3" height="3"/>
-          </g>
-          <rect id="head-zone" x="10" y="0" width="60" height="20" fill="transparent" pointer-events="all"/>
         </g>
-        <g id="board">
-          <rect x="-6" y="52" width="92" height="8" fill="#C15F8B"/>
-          <rect x="-6" y="52" width="92" height="3" fill="#D488AC"/>
+        <rect id="torso" x="10" y="0" width="60" height="40" fill="#D9835F"/>
+        <g id="eyes-n">
+          <rect class="eye" x="16" y="6" width="8" height="8" fill="#242320"/>
+          <rect class="eye" x="56" y="6" width="8" height="8" fill="#242320"/>
         </g>
+        <g id="eyes-h" fill="#242320">
+          <rect x="15" y="10" width="4" height="4"/>
+          <rect x="19" y="6" width="4" height="4"/>
+          <rect x="23" y="10" width="4" height="4"/>
+          <rect x="55" y="10" width="4" height="4"/>
+          <rect x="59" y="6" width="4" height="4"/>
+          <rect x="63" y="10" width="4" height="4"/>
+        </g>
+        <g id="eyes-x" fill="#242320">
+          <rect x="16" y="6" width="4" height="4"/>
+          <rect x="16" y="14" width="4" height="4"/>
+          <rect x="22" y="10" width="4" height="4"/>
+          <rect x="60" y="6" width="4" height="4"/>
+          <rect x="60" y="14" width="4" height="4"/>
+          <rect x="54" y="10" width="4" height="4"/>
+        </g>
+        <g id="parachute">
+          <rect x="28" y="-70" width="24" height="6" fill="#D9835F"/>
+          <rect x="10" y="-64" width="19" height="6" fill="#F2D9B8"/>
+          <rect x="29" y="-64" width="22" height="6" fill="#D9835F"/>
+          <rect x="51" y="-64" width="19" height="6" fill="#F2D9B8"/>
+          <rect x="-5" y="-58" width="12" height="7" fill="#D9835F"/>
+          <rect x="7"  y="-58" width="22" height="7" fill="#F2D9B8"/>
+          <rect x="29" y="-58" width="22" height="7" fill="#D9835F"/>
+          <rect x="51" y="-58" width="22" height="7" fill="#F2D9B8"/>
+          <rect x="73" y="-58" width="12" height="7" fill="#D9835F"/>
+          <rect x="-15" y="-51" width="22" height="7" fill="#D9835F"/>
+          <rect x="7"   y="-51" width="22" height="7" fill="#F2D9B8"/>
+          <rect x="29"  y="-51" width="22" height="7" fill="#D9835F"/>
+          <rect x="51"  y="-51" width="22" height="7" fill="#F2D9B8"/>
+          <rect x="73"  y="-51" width="22" height="7" fill="#D9835F"/>
+          <rect x="-15" y="-44" width="110" height="2" fill="#8B5A3C"/>
+          <g fill="#55555C">
+            <rect x="-11" y="-42" width="2" height="12"/>
+            <rect x="-6"  y="-30" width="2" height="14"/>
+            <rect x="0"   y="-16" width="2" height="16"/>
+            <rect x="89" y="-42" width="2" height="12"/>
+            <rect x="84" y="-30" width="2" height="14"/>
+            <rect x="78" y="-16" width="2" height="16"/>
+          </g>
+        </g>
+        <g fill="#C46F4D">
+          <rect class="leg leg-a" x="10" y="40" width="7.8" height="15"/>
+          <rect class="leg leg-b" x="27.4" y="40" width="7.8" height="15"/>
+          <rect class="leg leg-a" x="44.8" y="40" width="7.8" height="15"/>
+          <rect class="leg leg-b" x="62.2" y="40" width="7.8" height="15"/>
+        </g>
+        <g id="ball">
+          <rect x="68" y="8" width="7.5" height="7.5" fill="#ECECEC"/>
+          <rect x="75.5" y="8" width="7.5" height="7.5" fill="#242320"/>
+          <rect x="68" y="15.5" width="7.5" height="7.5" fill="#242320"/>
+          <rect x="75.5" y="15.5" width="7.5" height="7.5" fill="#ECECEC"/>
+        </g>
+        <g id="laptop">
+          <g fill="#6E7987">
+            <rect x="86"   y="46" width="28" height="5"/>
+            <rect x="87.5" y="41" width="28" height="5"/>
+            <rect x="89"   y="36" width="28" height="5"/>
+            <rect x="90.5" y="31" width="28" height="5"/>
+            <rect x="92"   y="26" width="28" height="5"/>
+            <rect x="93.5" y="21" width="28" height="5"/>
+          </g>
+          <g fill="#F2F2F2">
+            <rect x="95" y="35" width="3" height="3"/>
+            <rect x="98" y="32" width="3" height="3"/>
+            <rect x="98" y="38" width="3" height="3"/>
+            <rect x="102" y="38" width="3" height="3"/>
+            <rect x="104" y="35" width="3" height="3"/>
+            <rect x="106" y="32" width="3" height="3"/>
+            <rect x="110" y="32" width="3" height="3"/>
+            <rect x="110" y="38" width="3" height="3"/>
+            <rect x="113" y="35" width="3" height="3"/>
+          </g>
+          <rect x="64" y="51" width="46" height="4" fill="#5B6B7A"/>
+          <g fill="#7C8CA0">
+            <rect x="66" y="52" width="4" height="2"/>
+            <rect x="72" y="52" width="4" height="2"/>
+            <rect x="78" y="52" width="4" height="2"/>
+            <rect x="84" y="52" width="4" height="2"/>
+            <rect x="90" y="52" width="4" height="2"/>
+            <rect x="96" y="52" width="4" height="2"/>
+            <rect x="102" y="52" width="4" height="2"/>
+          </g>
+        </g>
+        <rect class="arm arm-l" x="-7" y="14" width="17" height="12" fill="#D9835F"/>
+        <rect class="arm arm-r" x="70" y="14" width="17" height="12" fill="#D9835F"/>
+        <g id="headphones">
+          <rect x="8" y="-2" width="64" height="6" fill="#3B3B42"/>
+          <rect x="2" y="4" width="10" height="14" fill="#A9CDC7"/>
+          <rect x="68" y="4" width="10" height="14" fill="#A9CDC7"/>
+        </g>
+        <g id="dj-table">
+          <rect x="6" y="34" width="68" height="6" fill="#55555C"/>
+          <rect x="16" y="26" width="14" height="10" fill="#3B7FC4"/>
+          <rect x="50" y="26" width="14" height="10" fill="#ECECEC"/>
+        </g>
+        <g id="notes">
+          <g class="note note-1" fill="#3B3B42">
+            <rect x="76" y="-4" width="2" height="9"/>
+            <rect x="72" y="2" width="4" height="4"/>
+            <rect x="76" y="-4" width="5" height="2"/>
+          </g>
+        </g>
+        <g id="cup">
+          <g id="steam" fill="#ABABAB">
+            <rect x="76" y="1" width="1.5" height="3"/>
+            <rect x="77.5" y="-2" width="1.5" height="3"/>
+            <rect x="82" y="1" width="1.5" height="3"/>
+            <rect x="80.5" y="-2" width="1.5" height="3"/>
+          </g>
+          <rect x="74" y="7" width="12" height="10" fill="#F2E9DC"/>
+          <rect x="76" y="7" width="8" height="2" fill="#4A2E1E"/>
+          <rect x="86" y="9" width="4" height="1.5" fill="#F2E9DC"/>
+          <rect x="88.5" y="9" width="1.5" height="5" fill="#F2E9DC"/>
+          <rect x="86" y="12.5" width="4" height="1.5" fill="#F2E9DC"/>
+        </g>
+        <g id="think-bubble" fill="#F2F2F2">
+          <rect x="30" y="-28" width="20" height="14"/>
+          <rect x="26" y="-24" width="6" height="6"/>
+          <rect x="50" y="-24" width="6" height="6"/>
+          <rect x="34" y="-10" width="4" height="4"/>
+          <rect x="27" y="-4" width="3" height="3"/>
+        </g>
+        <rect id="head-zone" x="10" y="0" width="60" height="20" fill="transparent" pointer-events="all"/>
       </g>
-    </svg>
+      <g id="board">
+        <rect x="-6" y="52" width="92" height="8" fill="#C15F8B"/>
+        <rect x="-6" y="52" width="92" height="3" fill="#D488AC"/>
+      </g>
+    </g>
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════════
+       TEMPLATE: MÈO
+       Hand-drawn pixel art (Piskel, 48×48) — whole body incl. legs is one
+       static <image>, so .leg/.arm-l/.arm-r/#eyes-* rules in states.css
+       simply match nothing now (harmless no-op). #bob-group's
+       translateY/rotate/scaleY still animates the whole image.
+  ═══════════════════════════════════════════════════════ -->
+  <script type="text/svg-template" id="tpl-cat">
+    <g id="flip-group">
+      <g id="bob-group">
+        <g id="hearts" fill="#E06C9F">
+          <g class="heart heart-1">
+            <rect x="14" y="-14" width="3" height="3"/>
+            <rect x="20" y="-14" width="3" height="3"/>
+            <rect x="14" y="-11" width="9" height="3"/>
+            <rect x="17" y="-8" width="3" height="3"/>
+          </g>
+          <g class="heart heart-2">
+            <rect x="52" y="-12" width="3" height="3"/>
+            <rect x="58" y="-12" width="3" height="3"/>
+            <rect x="52" y="-9" width="9" height="3"/>
+            <rect x="55" y="-6" width="3" height="3"/>
+          </g>
+        </g>
+
+        <!-- The painted sprite already has legs (bottom band) and a tail
+             (top-right notch, rows 11-22 of the source PNG) — cut both out
+             of the base image so the animated pieces below don't double up. -->
+        <image href="data:image/png;base64,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" x="-10" y="-45" width="100" height="100" style="image-rendering:pixelated; clip-path: polygon(0 0, 100px 0, 100px 20.83px, 79.17px 20.83px, 79.17px 47.92px, 100px 47.92px, 100px 66.67px, 0 66.67px);"/>
+
+        <!-- transform-origin overrides the shared "0 40px" from base.css
+             (tuned for Clawd's legs) — cat legs sit higher, so rotate-based
+             animations (e.g. held's dangle) need the pivot at their own hip. -->
+        <g fill="#E8A258">
+          <rect class="leg leg-a" x="13.96" y="21.7" width="6.25" height="11" style="transform-origin: 17.09px 21.7px;"/>
+          <rect class="leg leg-b" x="26.46" y="21.7" width="6.25" height="11" style="transform-origin: 29.59px 21.7px;"/>
+          <rect class="leg leg-a" x="38.96" y="21.7" width="6.25" height="11" style="transform-origin: 42.09px 21.7px;"/>
+          <rect class="leg leg-b" x="51.46" y="21.7" width="6.25" height="11" style="transform-origin: 54.59px 21.7px;"/>
+        </g>
+        <g fill="#F5EDE0">
+          <rect class="leg leg-a" x="13.96" y="29.7" width="6.25" height="3" style="transform-origin: 17.09px 21.7px;"/>
+          <rect class="leg leg-b" x="26.46" y="29.7" width="6.25" height="3" style="transform-origin: 29.59px 21.7px;"/>
+          <rect class="leg leg-a" x="38.96" y="29.7" width="6.25" height="3" style="transform-origin: 42.09px 21.7px;"/>
+          <rect class="leg leg-b" x="51.46" y="29.7" width="6.25" height="3" style="transform-origin: 54.59px 21.7px;"/>
+        </g>
+
+        <!-- Real tail cropped out of the same PNG (the notch cut above),
+             wrapped separately so it can rotate on its own from the base. -->
+        <g class="tail" style="transform-origin: 75px 3px;">
+          <image href="data:image/png;base64,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" x="-10" y="-45" width="100" height="100" style="image-rendering:pixelated; clip-path: inset(20.83px 0 52.08px 79.17px);"/>
+        </g>
+
+        <g id="parachute">
+          <rect x="28" y="-70" width="24" height="6" fill="#D9835F"/>
+          <rect x="10" y="-64" width="19" height="6" fill="#F2D9B8"/>
+          <rect x="29" y="-64" width="22" height="6" fill="#D9835F"/>
+          <rect x="51" y="-64" width="19" height="6" fill="#F2D9B8"/>
+          <rect x="-5" y="-58" width="12" height="7" fill="#D9835F"/>
+          <rect x="7"  y="-58" width="22" height="7" fill="#F2D9B8"/>
+          <rect x="29" y="-58" width="22" height="7" fill="#D9835F"/>
+          <rect x="51" y="-58" width="22" height="7" fill="#F2D9B8"/>
+          <rect x="73" y="-58" width="12" height="7" fill="#D9835F"/>
+          <rect x="-15" y="-51" width="22" height="7" fill="#D9835F"/>
+          <rect x="7"   y="-51" width="22" height="7" fill="#F2D9B8"/>
+          <rect x="29"  y="-51" width="22" height="7" fill="#D9835F"/>
+          <rect x="51"  y="-51" width="22" height="7" fill="#F2D9B8"/>
+          <rect x="73"  y="-51" width="22" height="7" fill="#D9835F"/>
+          <rect x="-15" y="-44" width="110" height="2" fill="#8B5A3C"/>
+          <g fill="#55555C">
+            <rect x="-11" y="-42" width="2" height="12"/>
+            <rect x="-6"  y="-30" width="2" height="14"/>
+            <rect x="0"   y="-16" width="2" height="16"/>
+            <rect x="89" y="-42" width="2" height="12"/>
+            <rect x="84" y="-30" width="2" height="14"/>
+            <rect x="78" y="-16" width="2" height="16"/>
+          </g>
+        </g>
+
+        <g id="ball">
+          <rect x="68" y="8" width="7.5" height="7.5" fill="#ECECEC"/>
+          <rect x="75.5" y="8" width="7.5" height="7.5" fill="#242320"/>
+          <rect x="68" y="15.5" width="7.5" height="7.5" fill="#242320"/>
+          <rect x="75.5" y="15.5" width="7.5" height="7.5" fill="#ECECEC"/>
+        </g>
+
+        <g id="laptop">
+          <g fill="#6E7987">
+            <rect x="86"   y="46" width="28" height="5"/>
+            <rect x="87.5" y="41" width="28" height="5"/>
+            <rect x="89"   y="36" width="28" height="5"/>
+            <rect x="90.5" y="31" width="28" height="5"/>
+            <rect x="92"   y="26" width="28" height="5"/>
+            <rect x="93.5" y="21" width="28" height="5"/>
+          </g>
+          <g fill="#F2F2F2">
+            <rect x="95" y="35" width="3" height="3"/>
+            <rect x="98" y="32" width="3" height="3"/>
+            <rect x="98" y="38" width="3" height="3"/>
+            <rect x="102" y="38" width="3" height="3"/>
+            <rect x="104" y="35" width="3" height="3"/>
+            <rect x="106" y="32" width="3" height="3"/>
+            <rect x="110" y="32" width="3" height="3"/>
+            <rect x="110" y="38" width="3" height="3"/>
+            <rect x="113" y="35" width="3" height="3"/>
+          </g>
+          <rect x="64" y="51" width="46" height="4" fill="#5B6B7A"/>
+          <g fill="#7C8CA0">
+            <rect x="66" y="52" width="4" height="2"/>
+            <rect x="72" y="52" width="4" height="2"/>
+            <rect x="78" y="52" width="4" height="2"/>
+            <rect x="84" y="52" width="4" height="2"/>
+            <rect x="90" y="52" width="4" height="2"/>
+            <rect x="96" y="52" width="4" height="2"/>
+            <rect x="102" y="52" width="4" height="2"/>
+          </g>
+        </g>
+
+        <g id="headphones">
+          <rect x="8" y="-2" width="64" height="6" fill="#3B3B42"/>
+          <rect x="2" y="4" width="10" height="14" fill="#A9CDC7"/>
+          <rect x="68" y="4" width="10" height="14" fill="#A9CDC7"/>
+        </g>
+        <g id="dj-table">
+          <rect x="6" y="34" width="68" height="6" fill="#55555C"/>
+          <rect x="16" y="26" width="14" height="10" fill="#3B7FC4"/>
+          <rect x="50" y="26" width="14" height="10" fill="#ECECEC"/>
+        </g>
+        <g id="notes">
+          <g class="note note-1" fill="#3B3B42">
+            <rect x="76" y="-4" width="2" height="9"/>
+            <rect x="72" y="2" width="4" height="4"/>
+            <rect x="76" y="-4" width="5" height="2"/>
+          </g>
+        </g>
+        <g id="cup">
+          <g id="steam" fill="#ABABAB">
+            <rect x="76" y="1" width="1.5" height="3"/>
+            <rect x="77.5" y="-2" width="1.5" height="3"/>
+            <rect x="82" y="1" width="1.5" height="3"/>
+            <rect x="80.5" y="-2" width="1.5" height="3"/>
+          </g>
+          <rect x="74" y="7" width="12" height="10" fill="#F2E9DC"/>
+          <rect x="76" y="7" width="8" height="2" fill="#4A2E1E"/>
+          <rect x="86" y="9" width="4" height="1.5" fill="#F2E9DC"/>
+          <rect x="88.5" y="9" width="1.5" height="5" fill="#F2E9DC"/>
+          <rect x="86" y="12.5" width="4" height="1.5" fill="#F2E9DC"/>
+        </g>
+        <g id="think-bubble" fill="#F2F2F2">
+          <rect x="30" y="-28" width="20" height="14"/>
+          <rect x="26" y="-24" width="6" height="6"/>
+          <rect x="50" y="-24" width="6" height="6"/>
+          <rect x="34" y="-10" width="4" height="4"/>
+          <rect x="27" y="-4" width="3" height="3"/>
+        </g>
+        <g id="butterfly">
+          <rect x="-10" y="-21" width="2" height="8" fill="#3B3B42"/>
+          <rect class="wing wing-l" x="-15" y="-20" width="5" height="6" fill="#B79FE0" style="transform-origin: -10px -17px;"/>
+          <rect class="wing wing-r" x="-8" y="-20" width="5" height="6" fill="#8FC9E0" style="transform-origin: -8px -17px;"/>
+        </g>
+        <rect id="head-zone" x="-10" y="-45" width="100" height="50" fill="transparent" pointer-events="all"/>
+      </g>
+      <g id="board">
+        <rect x="-6" y="52" width="92" height="8" fill="#C15F8B"/>
+        <rect x="-6" y="52" width="92" height="3" fill="#D488AC"/>
+      </g>
+    </g>
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════════
+       TEMPLATE: CỪU — same layout, different image
+  ═══════════════════════════════════════════════════════ -->
+  <script type="text/svg-template" id="tpl-sheep">
+    <g id="flip-group">
+      <g id="bob-group">
+        <g id="hearts" fill="#E06C9F">
+          <g class="heart heart-1">
+            <rect x="14" y="-14" width="3" height="3"/>
+            <rect x="20" y="-14" width="3" height="3"/>
+            <rect x="14" y="-11" width="9" height="3"/>
+            <rect x="17" y="-8" width="3" height="3"/>
+          </g>
+          <g class="heart heart-2">
+            <rect x="52" y="-12" width="3" height="3"/>
+            <rect x="58" y="-12" width="3" height="3"/>
+            <rect x="52" y="-9" width="9" height="3"/>
+            <rect x="55" y="-6" width="3" height="3"/>
+          </g>
+        </g>
+
+        <!-- Bottom 35.6px of the sprite is the painted-on hooves; clip them
+             off so they don't double up with the animated rect legs below. -->
+        <image href="data:image/png;base64,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" x="-17" y="-59" width="114" height="114" style="image-rendering:pixelated; clip-path: inset(0 0 35.6px 0);"/>
+
+        <g fill="#4B4B4B">
+          <rect class="leg leg-a" x="13.87" y="19.4" width="7.1" height="12" style="transform-origin: 17.42px 19.4px;"/>
+          <rect class="leg leg-b" x="28.13" y="19.4" width="7.1" height="12" style="transform-origin: 31.68px 19.4px;"/>
+          <rect class="leg leg-a" x="42.37" y="19.4" width="7.1" height="12" style="transform-origin: 45.92px 19.4px;"/>
+          <rect class="leg leg-b" x="56.63" y="19.4" width="7.1" height="12" style="transform-origin: 60.18px 19.4px;"/>
+        </g>
+
+        <g id="parachute">
+          <rect x="28" y="-70" width="24" height="6" fill="#D9835F"/>
+          <rect x="10" y="-64" width="19" height="6" fill="#F2D9B8"/>
+          <rect x="29" y="-64" width="22" height="6" fill="#D9835F"/>
+          <rect x="51" y="-64" width="19" height="6" fill="#F2D9B8"/>
+          <rect x="-5" y="-58" width="12" height="7" fill="#D9835F"/>
+          <rect x="7"  y="-58" width="22" height="7" fill="#F2D9B8"/>
+          <rect x="29" y="-58" width="22" height="7" fill="#D9835F"/>
+          <rect x="51" y="-58" width="22" height="7" fill="#F2D9B8"/>
+          <rect x="73" y="-58" width="12" height="7" fill="#D9835F"/>
+          <rect x="-15" y="-51" width="22" height="7" fill="#D9835F"/>
+          <rect x="7"   y="-51" width="22" height="7" fill="#F2D9B8"/>
+          <rect x="29"  y="-51" width="22" height="7" fill="#D9835F"/>
+          <rect x="51"  y="-51" width="22" height="7" fill="#F2D9B8"/>
+          <rect x="73"  y="-51" width="22" height="7" fill="#D9835F"/>
+          <rect x="-15" y="-44" width="110" height="2" fill="#8B5A3C"/>
+          <g fill="#55555C">
+            <rect x="-11" y="-42" width="2" height="12"/>
+            <rect x="-6"  y="-30" width="2" height="14"/>
+            <rect x="0"   y="-16" width="2" height="16"/>
+            <rect x="89" y="-42" width="2" height="12"/>
+            <rect x="84" y="-30" width="2" height="14"/>
+            <rect x="78" y="-16" width="2" height="16"/>
+          </g>
+        </g>
+
+        <g id="ball">
+          <rect x="68" y="8" width="7.5" height="7.5" fill="#ECECEC"/>
+          <rect x="75.5" y="8" width="7.5" height="7.5" fill="#242320"/>
+          <rect x="68" y="15.5" width="7.5" height="7.5" fill="#242320"/>
+          <rect x="75.5" y="15.5" width="7.5" height="7.5" fill="#ECECEC"/>
+        </g>
+
+        <g id="laptop">
+          <g fill="#6E7987">
+            <rect x="86"   y="46" width="28" height="5"/>
+            <rect x="87.5" y="41" width="28" height="5"/>
+            <rect x="89"   y="36" width="28" height="5"/>
+            <rect x="90.5" y="31" width="28" height="5"/>
+            <rect x="92"   y="26" width="28" height="5"/>
+            <rect x="93.5" y="21" width="28" height="5"/>
+          </g>
+          <g fill="#F2F2F2">
+            <rect x="95" y="35" width="3" height="3"/>
+            <rect x="98" y="32" width="3" height="3"/>
+            <rect x="98" y="38" width="3" height="3"/>
+            <rect x="102" y="38" width="3" height="3"/>
+            <rect x="104" y="35" width="3" height="3"/>
+            <rect x="106" y="32" width="3" height="3"/>
+            <rect x="110" y="32" width="3" height="3"/>
+            <rect x="110" y="38" width="3" height="3"/>
+            <rect x="113" y="35" width="3" height="3"/>
+          </g>
+          <rect x="64" y="51" width="46" height="4" fill="#5B6B7A"/>
+          <g fill="#7C8CA0">
+            <rect x="66" y="52" width="4" height="2"/>
+            <rect x="72" y="52" width="4" height="2"/>
+            <rect x="78" y="52" width="4" height="2"/>
+            <rect x="84" y="52" width="4" height="2"/>
+            <rect x="90" y="52" width="4" height="2"/>
+            <rect x="96" y="52" width="4" height="2"/>
+            <rect x="102" y="52" width="4" height="2"/>
+          </g>
+        </g>
+
+        <g id="headphones">
+          <rect x="8" y="-2" width="64" height="6" fill="#3B3B42"/>
+          <rect x="2" y="4" width="10" height="14" fill="#A9CDC7"/>
+          <rect x="68" y="4" width="10" height="14" fill="#A9CDC7"/>
+        </g>
+        <g id="dj-table">
+          <rect x="6" y="34" width="68" height="6" fill="#55555C"/>
+          <rect x="16" y="26" width="14" height="10" fill="#3B7FC4"/>
+          <rect x="50" y="26" width="14" height="10" fill="#ECECEC"/>
+        </g>
+        <g id="notes">
+          <g class="note note-1" fill="#3B3B42">
+            <rect x="76" y="-4" width="2" height="9"/>
+            <rect x="72" y="2" width="4" height="4"/>
+            <rect x="76" y="-4" width="5" height="2"/>
+          </g>
+        </g>
+        <g id="cup">
+          <g id="steam" fill="#ABABAB">
+            <rect x="76" y="1" width="1.5" height="3"/>
+            <rect x="77.5" y="-2" width="1.5" height="3"/>
+            <rect x="82" y="1" width="1.5" height="3"/>
+            <rect x="80.5" y="-2" width="1.5" height="3"/>
+          </g>
+          <rect x="74" y="7" width="12" height="10" fill="#F2E9DC"/>
+          <rect x="76" y="7" width="8" height="2" fill="#4A2E1E"/>
+          <rect x="86" y="9" width="4" height="1.5" fill="#F2E9DC"/>
+          <rect x="88.5" y="9" width="1.5" height="5" fill="#F2E9DC"/>
+          <rect x="86" y="12.5" width="4" height="1.5" fill="#F2E9DC"/>
+        </g>
+        <g id="think-bubble" fill="#F2F2F2">
+          <rect x="30" y="-28" width="20" height="14"/>
+          <rect x="26" y="-24" width="6" height="6"/>
+          <rect x="50" y="-24" width="6" height="6"/>
+          <rect x="34" y="-10" width="4" height="4"/>
+          <rect x="27" y="-4" width="3" height="3"/>
+        </g>
+        <rect id="head-zone" x="-17" y="-59" width="114" height="57" fill="transparent" pointer-events="all"/>
+      </g>
+      <g id="board">
+        <rect x="-6" y="52" width="92" height="8" fill="#C15F8B"/>
+        <rect x="-6" y="52" width="92" height="3" fill="#D488AC"/>
+      </g>
+    </g>
+  </script>
+
+  
+    <svg id="creature" width="100" height="65" viewBox="-52 -54 184 120" xmlns="http://www.w3.org/2000/svg"></svg>
    </div>
   </div>
   <script src="engine.js"></script>

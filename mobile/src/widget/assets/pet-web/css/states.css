@@ -311,3 +311,28 @@ body.think .arm-l {
 body.think .arm-r {
   animation: arm-sway-r 1.8s ease-in-out infinite;
 }
+
+body.butterfly #butterfly {
+  display: inline;
+  animation: butterfly-flit 2s ease-in-out infinite;
+}
+
+body.butterfly .wing-l {
+  animation: wing-flap-l 0.15s steps(1) infinite;
+}
+
+body.butterfly .wing-r {
+  animation: wing-flap-r 0.15s steps(1) infinite;
+}
+
+body.butterfly #bob-group {
+  animation: pounce-cycle 2s ease-in-out infinite;
+}
+
+body.butterfly .leg-a {
+  animation: paw-swipe 2s ease-in-out infinite;
+}
+
+body.butterfly .tail {
+  animation: tail-wag 0.6s ease-in-out infinite;
+}

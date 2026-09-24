@@ -10,8 +10,15 @@ import {
 } from 'react-native';
 import { DEFAULT_GREETINGS } from '../storage/config';
 
+const PET_MODELS = [
+  { id: 'clawd', label: '🦀 Clawd' },
+  { id: 'cat', label: '🐱 Mèo' },
+  { id: 'sheep', label: '🐑 Cừu' },
+];
+
 export default function SettingsScreen({ config, onSave, onCancel }) {
   const [petName, setPetName] = useState(config.petName);
+  const [petModel, setPetModel] = useState(config.petModel || 'clawd');
   const [enabled, setEnabled] = useState(
     new Set(DEFAULT_GREETINGS.filter((g) => (config.enabledGreetings || []).includes(g)))
   );
@@ -54,6 +61,7 @@ export default function SettingsScreen({ config, onSave, onCancel }) {
 
     onSave({
       petName: name,
+      petModel,
       enabledGreetings,
       customGreetings,
       intervalMinMin: min,
@@ -73,6 +81,21 @@ export default function SettingsScreen({ config, onSave, onCancel }) {
         placeholder="Clawd Pet"
         maxLength={30}
       />
+
+      <Text style={styles.label}>Chọn pet</Text>
+      <View style={styles.modelRow}>
+        {PET_MODELS.map((m) => (
+          <Pressable
+            key={m.id}
+            style={[styles.modelBtn, petModel === m.id && styles.modelBtnActive]}
+            onPress={() => setPetModel(m.id)}
+          >
+            <Text style={[styles.modelBtnText, petModel === m.id && styles.modelBtnTextActive]}>
+              {m.label}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
 
       <Text style={styles.label}>Câu chào mặc định</Text>
       {DEFAULT_GREETINGS.map((g) => (
@@ -136,6 +159,17 @@ const styles = StyleSheet.create({
     color: '#2B2B2B',
   },
   textarea: { minHeight: 80, textAlignVertical: 'top' },
+  modelRow: { flexDirection: 'row', gap: 8, marginTop: 6 },
+  modelBtn: {
+    flex: 1,
+    borderWidth: 2,
+    borderColor: '#2B2B2B',
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  modelBtnActive: { backgroundColor: '#2B2B2B' },
+  modelBtnText: { fontSize: 13, fontWeight: '700', color: '#2B2B2B' },
+  modelBtnTextActive: { color: '#fff' },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
   checkLabel: { flex: 1, fontSize: 13, color: '#2B2B2B' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },

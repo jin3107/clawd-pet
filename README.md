@@ -9,7 +9,7 @@
   [![Stars](https://img.shields.io/github/stars/jin3107/clawd-pet?style=flat-square)](https://github.com/jin3107/clawd-pet/stargazers)
   [![Forks](https://img.shields.io/github/forks/jin3107/clawd-pet?style=flat-square)](https://github.com/jin3107/clawd-pet/network/members)
   [![License](https://img.shields.io/github/license/jin3107/clawd-pet?style=flat-square)](LICENSE)
-  [![Version](https://img.shields.io/badge/version-1.2.0-blue?style=flat-square)](package.json)
+  [![Version](https://img.shields.io/badge/version-1.3.0-blue?style=flat-square)](package.json)
   [![Platform](https://img.shields.io/badge/platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](#requirements)
   [![Electron](https://img.shields.io/badge/Electron-31-47848F?style=flat-square&logo=electron&logoColor=white)](https://www.electronjs.org/)
 </div>

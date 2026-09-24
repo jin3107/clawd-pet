@@ -1,6 +1,6 @@
 {
   "name": "clawd-pet",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "A tiny pixel-art crab that walks the taskbar on your Windows desktop",
   "main": "main.js",
   "license": "MIT",
