@@ -115,6 +115,17 @@ Tham số URL để test:
 
 Ở chế độ dev có `window.__game` (ví dụ `__game.brain.update(60000)` để tua thời gian).
 
+## Mở lại sau khi tắt máy / đóng terminal
+
+Đã làm xong phần cài đặt bên dưới một lần rồi (Portal, `.env`, cài `cloudflared`)? Mỗi lần mở lại chỉ cần 4 bước. Cả hai terminal phải luôn mở khi dùng, tắt cái nào là Activity hỏng.
+
+1. **Terminal 1**: `cd activity` rồi `npm run dev:tunnel`. Chờ dòng `API + WebSocket listening on http://localhost:3001` và `VITE ... ready`.
+2. **Terminal 2**: `cloudflared tunnel --url http://localhost:5173`. Copy domain `https://....trycloudflare.com` nó in ra (**khác mỗi lần**).
+3. **Developer Portal → Activities → URL Mappings**: dòng `/` → Mục Tiêu dán domain mới (không `https://`) → Lưu. Quên bước này thì Activity báo lỗi hoặc trắng vì Discord vẫn trỏ về domain cũ.
+4. Vào voice channel → biểu tượng Activities → chạy app. Lần đầu lỗi thì mở lại lần hai.
+
+Muốn khỏi làm lại các bước này mỗi lần thì deploy lên host cố định (xem "Deploy miễn phí").
+
 ## Chạy trong Discord (Developer Portal + tunnel)
 
 ### Vì sao cần tunnel?
