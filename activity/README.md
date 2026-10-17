@@ -9,7 +9,42 @@ Bản Electron ở thư mục gốc **không bị sửa**; toàn bộ code nằm
 | Phase | Nội dung | Trạng thái |
 |---|---|---|
 | 1 | Pet chạy local ở mỗi client, đăng nhập Discord (`identify`), bubble chào tên/avatar | Xong, chưa test trong Discord (cần bước tay bên dưới) |
-| 2 | WebSocket, room key = `sdk.instanceId`, cả voice channel thấy chung một pet, nút cho ăn / vuốt ve | Chưa làm |
+| 2 | WebSocket, room key = `sdk.instanceId`, cả voice channel thấy chung một pet, nút cho ăn / vuốt ve | Xong, đã test 2 client cục bộ; chưa test nhiều người trong Discord |
+
+## Phase 2: một pet chung cho cả voice channel
+
+Mỗi Activity instance (một voice channel đang chạy Activity) có một `sdk.instanceId` duy nhất. Client gửi nó làm **room key**; server giữ **một `PetBrain` cho mỗi room**.
+
+```
+Client A ─┐                        ┌─ tick 30ms: PetBrain.update()
+Client B ─┼── WebSocket /ws ──▶ Room ─┤
+Client C ─┘     (JSON)              └─ ~15 lần/giây: snapshot {x, ry, tags, care, food} ──▶ mọi client
+```
+
+Vì sao **server giữ simulation** (thay vì để một client làm "host"):
+
+- `PetBrain` là TypeScript thuần nên chạy được y nguyên trong Node: một nguồn sự thật, không cần bầu host, host thoát không làm pet đứng hình.
+- Người vào sau nhận ngay trạng thái hiện tại trong `welcome`.
+- Quy tắc tranh chấp nằm một chỗ: **chỉ một người kéo pet tại một thời điểm** (người thứ hai bị từ chối), hover vuốt ve của bất kỳ ai đều tính, "AFK" nghĩa là *không ai* di chuột 12 giây.
+
+Vì sao **thế giới chuẩn rộng 2000 đơn vị** (`WORLD_WIDTH`): khung Activity mỗi người một cỡ. Nếu sân co giãn theo từng người thì thùng gỗ và vị trí pet lệch nhau giữa các máy. Nên bề ngang cố định (client chỉ scale theo bề ngang khung), còn chiều cao phần trời tùy khung; vị trí dọc gửi dưới dạng `ry` = khoảng cách so với mặt đất.
+
+Phía client:
+
+- `NetSource` nhận snapshot và **nội suy** vị trí (làm mượt, không giật theo 15Hz). Trạng thái/animation (`tags`) đổi ngay.
+- Người đang kéo pet thấy pet bám theo chuột ngay (dự đoán cục bộ), người khác thấy qua snapshot.
+- Mất kết nối thì tự rơi về pet **local** (pet không bao giờ biến mất), tự nối lại với backoff 1–10 giây.
+- Bubble care do server phát (cả room thấy cùng một câu); bubble chào tên chỉ hiện với người đó.
+
+Tính năng mới:
+
+- **Cho ăn**: nút ở góc trái. Một cái bánh rơi từ trên xuống sân; pet đi tới, cúi tay xuống nhặt, nhấc lên, thảy vào miệng (bánh bay theo đường vòng cung và nhỏ dần) rồi nhai. Bị kéo giữa chừng thì bánh rơi lại xuống đất. Mỗi lúc chỉ một cái bánh. Toast "<tên> đã cho ăn" hiện cho cả room. Các điểm tay/miệng nằm trong `anchors` của sprite config.
+- **Vuốt ve**: nút ở góc trái (hoặc rê/chạm đầu pet). Toast "<tên> đang vuốt ve".
+- Số người trong room hiện cạnh hai nút (rê chuột để xem tên).
+
+Test hai client không cần Discord: mở hai tab `http://localhost:5173/?room=abc&name=An` và `...?room=abc&name=Binh` (cần chạy cả API: `npm run dev`).
+
+Giới hạn hiện tại (chưa làm, cố ý để đơn giản): WebSocket **không xác thực**: server tin `room` và `name` client gửi. Với server Discord riêng tư thì ổn; nếu mở rộng thì gửi `access_token` trong `join` và server kiểm tra với `GET /users/@me`.
 
 ## Port từ Electron như thế nào
 
@@ -21,7 +56,7 @@ Bản Electron không dùng sprite sheet: pet là **một SVG vẽ tay (từng `
 | `renderer/pet.js` toggle class `body.<state>` | `PetBrain.tags()` trả về danh sách tag (`fall`, `chute`, `scared`, `hang`...) |
 | `index.html` SVG + `states.css` + `keyframes.css` | `src/sprites/clawd.ts` — cây node (rect/group) + poses + animations dạng **data** |
 | (CSS animation của trình duyệt) | `src/engine/anim.ts` + `renderer.ts` — vẽ lên `<canvas>`, nội suy keyframe giống CSS |
-| Cửa sổ trong suốt, roam taskbar, kéo ra ngoài màn hình, tray, settings, `screen.getCursorScreenPoint` | **Bỏ**. Thay bằng sân cố định (`src/yard/yard.ts`) và pointer event trên canvas |
+| Cửa sổ trong suốt, roam taskbar, kéo ra ngoài màn hình, tray, settings, `screen.getCursorScreenPoint` | **Bỏ**. Thay bằng sân cố định bề ngang (`src/engine/yard-layout.ts`) và pointer event trên canvas |
 | Care bubble mỗi 60–75 phút (`bubble.html`) | `src/ui/bubble.ts` (DOM) + `src/data/care.ts` — cùng tần suất, cùng 7 câu mặc định |
 
 Khác biệt có chủ đích so với bản desktop:
@@ -37,20 +72,26 @@ Khác biệt có chủ đích so với bản desktop:
 
 ```
 activity/
-├── server/index.js          Express: POST /api/token (giữ client secret)
+├── server/
+│   ├── index.ts             Express: POST /api/token (giữ client secret) + WebSocket /ws
+│   └── room.ts              Room (1 PetBrain / room), xử lý message, RoomRegistry
 ├── src/
-│   ├── main.ts              Khởi động, chọn sprite, đăng nhập Discord
-│   ├── game.ts              Vòng lặp, canvas, pointer (kéo/vuốt), bubble, lịch care
-│   ├── engine/              Không phụ thuộc DOM/Discord (tái dùng được cho phase 2)
+│   ├── main.ts              Khởi động, chọn sprite, đăng nhập Discord, vào room
+│   ├── game.ts              Vòng lặp, canvas, pointer, bubble, chọn nguồn local/net
+│   ├── engine/              Thuần TS, không DOM/Discord (chạy cả ở client lẫn server)
 │   │   ├── brain.ts         State machine + physics
 │   │   ├── anim.ts          Keyframe sampler (giống CSS keyframes)
-│   │   ├── renderer.ts      Vẽ cây node lên canvas, blink, flip
-│   │   └── types.ts         SpriteConfig, Pose, Anim, Yard...
-│   ├── sprites/             clawd.ts + dsl.ts + index.ts (registry)
-│   ├── yard/yard.ts         Sân co giãn lấp đầy khung Activity, vật cản, vẽ nền
+│   │   ├── renderer.ts      Vẽ cây node lên canvas, blink, flip (chỉ client)
+│   │   ├── yard-layout.ts   Kích thước thế giới 2000 + vật cản (dùng chung client/server)
+│   │   └── geometry.ts, types.ts
+│   ├── shared/protocol.ts   Kiểu message WebSocket
+│   ├── source/              PetSource: local.ts (guest), net.ts (room), types.ts
+│   ├── sprites/             clawd.ts + meta.ts (body/tricks, server dùng) + dsl.ts + index.ts
+│   ├── yard/yard.ts         Vẽ nền, vật cản, bánh
 │   ├── discord/auth.ts      SDK: ready → authorize → /api/token → authenticate
-│   ├── ui/bubble.ts         Bubble DOM
-│   └── data/care.ts         Câu nhắc + tần suất
+│   ├── ui/                  bubble.ts, hud.ts (nút, số người, toast)
+│   └── data/                messages.ts (câu care), care.ts (tần suất local)
+├── tsconfig.server.json
 └── vite.config.ts
 ```
 
@@ -62,12 +103,14 @@ npm install
 npm run dev:web
 ```
 
+`dev:web` chỉ chạy Vite (đủ để xem pet ở guest mode). Chạy luôn API + WebSocket bằng `npm run dev` (hoặc `npm run dev:tunnel` khi test trong Discord). Server chạy bằng `tsx` nên import trực tiếp được code TypeScript trong `src/engine`. Lưu ý `tsx watch` chỉ theo dõi file code, **đổi `.env` thì phải restart**.
+
 Mở `http://localhost:5173`. Ngoài Discord (không có `?frame_id=` trên URL) app tự chạy **guest mode**: bỏ qua SDK và đăng nhập, pet vẫn chạy đầy đủ. Tiện để chỉnh sprite/hành vi mà không cần tunnel.
 
 Tham số URL để test:
 
 - `?careMin=0.05&careMax=0.08` — bubble nhắc nhở sau 3–5 giây thay vì 60–75 phút (đơn vị: phút).
-- `?zoom=1` — cỡ pet so với khung (mặc định 1; 0.75 nhỏ hơn, 1.5 to hơn). Sân luôn lấp đầy khung, pet giữ cỡ cố định nên khung càng to thì sân càng rộng.
+- `?room=abc&name=An` — vào room dùng chung (cần API chạy); xem "Phase 2".
 - `?model=clawd` — chọn sprite (xem `src/sprites/index.ts`).
 
 Ở chế độ dev có `window.__game` (ví dụ `__game.brain.update(60000)` để tua thời gian).
@@ -183,7 +226,17 @@ Mẹo: cat/sheep ở bản Electron là ảnh PNG tĩnh + CSS `clip-path`, nên 
 - [ ] Mở Activity trong voice channel và kiểm tra: pet hiện, bubble chào đúng tên, kéo/thả/vuốt ve được.
 - [ ] Nếu lỗi: Ctrl+Shift+I trong Discord client → Console / Network (kiểm tra `/api/token`).
 
+### Phase 2
+
+- [ ] Dừng `npm run dev:tunnel` đang chạy (Ctrl+C) và chạy lại: script API đã đổi từ `node --watch` sang `tsx watch`, và Vite cần nạp proxy `/ws` mới. **Tunnel `cloudflared` giữ nguyên, không cần đổi URL Mapping.**
+- [ ] Mở Activity trong voice channel cùng một người nữa (hoặc hai tài khoản): cả hai thấy **cùng một pet**, số người hiện cạnh nút.
+- [ ] Bấm **Cho ăn** / **Vuốt ve** ở máy này, kiểm tra máy kia thấy bánh, pet đi ăn, toast tên người bấm.
+- [ ] Hai người cùng kéo pet: người thứ hai bị từ chối (pet không giật).
+- [ ] Nếu không thấy số người / pet đứng yên: Ctrl+Shift+I → Network → lọc `ws`: kết nối `/ws` phải ở trạng thái 101. Client tự thử cả `/ws` lẫn `/.proxy/ws`; báo mình URL nào thành công/thất bại.
+
 ## Đã kiểm tra / chưa kiểm tra
 
-- Đã: `tsc --noEmit` sạch; chạy trong trình duyệt ở guest mode (render, bubble, kéo-thả-rơi, pose code / fall+chute+scared); mô phỏng 400k tick không ra khỏi sân và chạm đủ mọi trick; server trả 400 khi thiếu `code` và gọi được endpoint thật của Discord.
+- Đã (phase 2): hai tab trình duyệt cùng room qua server thật: đồng bộ trạng thái, cho ăn (đi → ăn → xong), vuốt ve, từ chối kéo thứ hai, thả rơi, mất server → rơi về local → tự nối lại ~5 giây; `tsc` cả client lẫn server sạch.
+- Chưa (phase 2): nhiều người trong Discord thật, đường WebSocket qua proxy của Discord, độ trễ khi kéo qua tunnel.
+- Đã (phase 1): `tsc --noEmit` sạch; chạy trong trình duyệt ở guest mode (render, bubble, kéo-thả-rơi, pose code / fall+chute+scared); mô phỏng 400k tick không ra khỏi sân và chạm đủ mọi trick; server trả 400 khi thiếu `code` và gọi được endpoint thật của Discord.
 - Chưa: chạy bên trong Discord (cần Portal + tunnel của bạn), các pose music / soccer / coffee / surf / climb mới chỉ kiểm tra qua state machine chứ chưa nhìn bằng mắt, avatar qua `/discord-cdn`.
