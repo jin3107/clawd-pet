@@ -8,6 +8,7 @@ const SNAP_DIST_X = 150;
 const SNAP_DIST_Y = 200;
 const SEND_INTERVAL_MS = 33;
 const CURSOR_INTERVAL_MS = 250;
+const HEARTBEAT_MS = 45_000;
 
 export interface NetOptions {
   room: string;
@@ -22,6 +23,7 @@ export interface NetOptions {
 
 export class NetSource implements PetSource {
   readonly kind = 'net' as const;
+  private heartbeat: ReturnType<typeof setInterval>;
   private ws: WebSocket | null = null;
   private urlIdx = 0;
   private opened = false;
@@ -42,6 +44,9 @@ export class NetSource implements PetSource {
 
   constructor(private opts: NetOptions) {
     this.connect();
+    // Free hosts (e.g. Render) put a service to sleep after 15 min without inbound traffic; an idle but open
+    // Activity sends nothing else, so a tiny periodic message keeps the room alive while anyone is watching.
+    this.heartbeat = setInterval(() => this.send({ t: 'ping' }), HEARTBEAT_MS);
   }
 
   /** True once the server has sent the room's current state; Game only uses this source then. */
@@ -51,6 +56,7 @@ export class NetSource implements PetSource {
 
   close(): void {
     this.closed = true;
+    clearInterval(this.heartbeat);
     this.ws?.close();
   }
 

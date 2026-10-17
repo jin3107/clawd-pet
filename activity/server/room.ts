@@ -219,7 +219,7 @@ export function parseClientMsg(raw: string): ClientMsg | null {
   }
   if (typeof m !== 'object' || m === null || typeof (m as { t?: unknown }).t !== 'string') return null;
   const t = (m as { t: string }).t;
-  return ['join', 'cursor', 'hover', 'dragStart', 'drag', 'dragEnd', 'pat', 'feed'].includes(t) ? (m as ClientMsg) : null;
+  return ['join', 'cursor', 'hover', 'dragStart', 'drag', 'dragEnd', 'pat', 'feed', 'ping'].includes(t) ? (m as ClientMsg) : null;
 }
 
 export class RoomRegistry {

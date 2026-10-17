@@ -18,7 +18,8 @@ export type ClientMsg =
   | { t: 'drag'; x: number; ry: number }
   | { t: 'dragEnd'; fall: boolean }
   | { t: 'pat' }
-  | { t: 'feed' };
+  | { t: 'feed' }
+  | { t: 'ping' };
 
 export type ServerMsg =
   | { t: 'welcome'; id: string; model: string; snap: Snapshot; names: string[] }
