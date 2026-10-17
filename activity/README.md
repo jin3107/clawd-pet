@@ -216,6 +216,31 @@ Engine không biết gì về từng model. Chỉ cần:
 
 Mẹo: cat/sheep ở bản Electron là ảnh PNG tĩnh + CSS `clip-path`, nên khi port chỉ cần node `image` + `clip` và animate các group bao quanh (`bob`, `tail`...).
 
+## Deploy miễn phí (không cần bật máy / tunnel)
+
+Một process Node phục vụ tất cả: trang web (`dist`), `POST /api/token` và WebSocket `/ws`. Vì thế **không dùng được Vercel/Netlify** (serverless, không giữ được WebSocket và bộ nhớ chung của room) mà cần một host chạy process liên tục.
+
+**Render (free) — ít thao tác nhất**, dùng khi đã đẩy code lên GitHub:
+
+1. <https://render.com> → New → **Web Service** → chọn repo.
+2. Điền:
+   - **Root Directory**: `activity`
+   - **Build Command**: `npm install --include=dev && npm run build`
+   - **Start Command**: `npm start`
+   - **Instance Type**: Free
+3. **Environment**: `VITE_DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`. `VITE_DISCORD_CLIENT_ID` phải có **trước khi build** vì Vite nhúng nó vào bundle lúc build; đổi giá trị thì phải deploy lại.
+4. Deploy xong có domain dạng `tên.onrender.com`. Vào Developer Portal → URL Mappings → dòng `/` đổi Target thành domain đó (không `https://`).
+
+Giới hạn của gói free (theo [trang free của Render](https://render.com/free), chưa tự kiểm chứng):
+
+- Ngủ sau 15 phút không có request hoặc WebSocket message gửi lên; tỉnh lại mất tới ~1 phút. Client gửi `ping` mỗi 45 giây nên **khi còn ai mở Activity thì server không ngủ**. Khi cả voice channel đã đóng và server ngủ, người mở Activity đầu tiên có thể gặp trang lỗi/chờ lâu ở lần đầu; mở lại sau ~1 phút là chạy.
+- Server ngủ thì bộ nhớ mất: pet trong room khởi tạo lại (không có gì quan trọng để mất).
+- 750 giờ/tháng (đủ chạy liên tục một service), băng thông miễn phí khoảng 5 GB/tháng (mỗi người xem ~vài MB/giờ).
+
+**Oracle Cloud Always Free (không ngủ, nhưng tự cài)**: VM ARM (`VM.Standard.A1.Flex`) miễn phí vĩnh viễn; cần cài Node, clone repo, `npm install && npm run build`, chạy `npm start` bằng `pm2`, và đặt một reverse proxy có HTTPS (Caddy/nginx) vì Discord yêu cầu HTTPS. Phải mở cổng 80/443 ở cả Oracle VCN lẫn firewall của máy, và đôi khi khu vực hết suất ARM.
+
+Khi dùng host cố định, URL Mapping chỉ đặt một lần, không cần `cloudflared`.
+
 ## Việc bạn phải tự làm tay (phase 1)
 
 - [ ] Tạo Application, lấy Application ID + Client Secret, thêm redirect `https://127.0.0.1`.
