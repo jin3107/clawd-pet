@@ -6,11 +6,6 @@ export interface Viewer {
   avatarUrl: string | null;
 }
 
-export interface DiscordSession {
-  sdk: DiscordSDK;
-  viewer: Viewer;
-}
-
 // Discord loads Activities in an iframe with ?frame_id=...; opening the page in a normal tab has no such param.
 export const isInsideDiscord = (): boolean => new URLSearchParams(location.search).has('frame_id');
 
@@ -19,10 +14,14 @@ export const isInsideDiscord = (): boolean => new URLSearchParams(location.searc
 const avatarUrl = (id: string, hash: string | null | undefined) =>
   hash ? `/.proxy/discord-cdn/avatars/${id}/${hash}.png?size=64` : null;
 
-export async function connectDiscord(clientId: string): Promise<DiscordSession> {
+/** Handshake with the Discord client. `sdk.instanceId` is available after this, before any login. */
+export async function initSdk(clientId: string): Promise<DiscordSDK> {
   const sdk = new DiscordSDK(clientId);
   await sdk.ready();
+  return sdk;
+}
 
+export async function authenticateViewer(sdk: DiscordSDK, clientId: string): Promise<Viewer> {
   const { code } = await sdk.commands.authorize({
     client_id: clientId,
     response_type: 'code',
@@ -43,8 +42,5 @@ export async function connectDiscord(clientId: string): Promise<DiscordSession> 
   if (!auth) throw new Error('authenticate() returned no session');
 
   const u = auth.user;
-  return {
-    sdk,
-    viewer: { id: u.id, name: u.global_name ?? u.username, avatarUrl: avatarUrl(u.id, u.avatar) },
-  };
+  return { id: u.id, name: u.global_name ?? u.username, avatarUrl: avatarUrl(u.id, u.avatar) };
 }

@@ -1,29 +1,5 @@
 import type { Obstacle, Yard } from '../engine/types';
 
-const GROUND_BAND = 44;
-
-// Mutated in place by layoutYard(): PetBrain and the drawing code hold this same object.
-export const YARD: Yard = {
-  width: 480,
-  height: 270,
-  groundY: 226,
-  wallT: 6,
-  obstacles: [
-    { kind: 'rock', x: 110, w: 28, h: 10 },
-    { kind: 'crate', x: 300, w: 34, h: 26 },
-  ],
-};
-
-/** Fits the yard to the Activity frame (in yard units); obstacles keep their relative position. */
-export function layoutYard(width: number, height: number): void {
-  YARD.width = width;
-  YARD.height = height;
-  YARD.groundY = height - GROUND_BAND;
-  const [rock, crate] = YARD.obstacles;
-  rock.x = Math.round(width * 0.23 - rock.w / 2);
-  crate.x = Math.round(width * 0.62 - crate.w / 2);
-}
-
 const SKY = ['#BFE3F2', '#CDEAF5', '#DCF1F8', '#EAF7FB'];
 const CLOUD = '#FFFFFF';
 const POST = '#8B5A3C';
@@ -55,7 +31,30 @@ function drawObstacle(ctx: CanvasRenderingContext2D, o: Obstacle, groundY: numbe
   }
 }
 
-export function drawYard(ctx: CanvasRenderingContext2D, yard: Yard, timeSec: number): void {
+/** Drawn after the pet so a cookie in its hand shows in front of the body. */
+export function drawFood(ctx: CanvasRenderingContext2D, food: { x: number; ry: number; s: number }, groundY: number): void {
+  const w = Math.max(3, Math.round(14 * food.s));
+  const h = Math.max(2, Math.round(w * 0.8));
+  const x = Math.round(food.x - w / 2);
+  const y = Math.round(groundY + food.ry - h / 2);
+  ctx.fillStyle = '#8B5A3C';
+  ctx.fillRect(x - 1, y - 1, w + 2, h + 2);
+  ctx.fillStyle = '#E0B26B';
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#F0CB8A';
+  ctx.fillRect(x, y, w, Math.min(2, h));
+  if (w >= 10) {
+    ctx.fillStyle = '#6B4128';
+    ctx.fillRect(x + 3, y + 3, 2, 2);
+    ctx.fillRect(x + w - 6, y + h - 5, 2, 2);
+  }
+}
+
+export function drawYard(
+  ctx: CanvasRenderingContext2D,
+  yard: Yard,
+  timeSec: number,
+): void {
   const { width: w, height: h, groundY, wallT } = yard;
 
   const band = Math.ceil(groundY / SKY.length);
