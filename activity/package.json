@@ -4,20 +4,25 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -n web,api -c cyan,magenta \"vite\" \"node --watch server/index.js\"",
-    "dev:tunnel": "concurrently -n web,api -c cyan,magenta \"vite --mode tunnel\" \"node --watch server/index.js\"",
+    "dev": "concurrently -n web,api -c cyan,magenta \"vite\" \"tsx watch server/index.ts\"",
+    "dev:tunnel": "concurrently -n web,api -c cyan,magenta \"vite --mode tunnel\" \"tsx watch server/index.ts\"",
     "dev:web": "vite",
-    "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit && vite build",
-    "start": "node server/index.js"
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.server.json --noEmit",
+    "build": "npm run typecheck && vite build",
+    "start": "tsx server/index.ts"
   },
   "dependencies": {
     "@discord/embedded-app-sdk": "^2.5.0",
     "@fontsource/be-vietnam-pro": "^5.3.0",
     "dotenv": "^18.0.8",
-    "express": "^5.3.0"
+    "express": "^5.3.0",
+    "tsx": "^4.23.15",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.5",
+    "@types/ws": "^8.18.2",
     "concurrently": "^10.0.6",
     "typescript": "^7.0.2",
     "vite": "^8.3.4"

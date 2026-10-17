@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import { existsSync } from 'node:fs';
+import { WebSocketServer, type WebSocket } from 'ws';
+import { parseClientMsg, RoomRegistry, type Room } from './room';
 
 const { VITE_DISCORD_CLIENT_ID: clientId, DISCORD_CLIENT_SECRET: clientSecret } = process.env;
 const port = Number(process.env.PORT) || 3001;
@@ -40,7 +42,7 @@ app.post('/api/token', async (req, res) => {
       return res.status(502).json({ error: 'token_exchange_failed' });
     }
 
-    const { access_token } = await response.json();
+    const { access_token } = (await response.json()) as { access_token: string };
     res.json({ access_token });
   } catch (err) {
     console.error('Token exchange error:', err);
@@ -52,4 +54,49 @@ if (existsSync('dist')) {
   app.use(express.static('dist'));
 }
 
-app.listen(port, () => console.log(`API listening on http://localhost:${port}`));
+const server = app.listen(port, () => console.log(`API + WebSocket listening on http://localhost:${port}`));
+
+// ---- shared pet rooms: one Room (and one PetBrain) per Discord Activity instance ----
+
+const registry = new RoomRegistry();
+const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 2048 });
+const alive = new WeakSet<WebSocket>();
+
+wss.on('connection', (ws) => {
+  alive.add(ws);
+  ws.on('pong', () => alive.add(ws));
+
+  let session: { room: Room; client: ReturnType<Room['add']> } | null = null;
+  const joinTimeout = setTimeout(() => ws.close(4000, 'join timeout'), 5000);
+
+  ws.on('message', (data) => {
+    const msg = parseClientMsg(data.toString());
+    if (!msg) return;
+    if (!session) {
+      if (msg.t !== 'join') return;
+      session = registry.join(ws, msg);
+      if (!session) ws.close(4001, 'bad join');
+      else clearTimeout(joinTimeout);
+      return;
+    }
+    if (msg.t !== 'join') session.room.handle(session.client, msg);
+  });
+
+  ws.on('close', () => {
+    clearTimeout(joinTimeout);
+    session?.room.remove(session.client);
+  });
+  ws.on('error', () => ws.close());
+});
+
+// Proxies (Discord's included) drop idle sockets, so ping regularly and cull dead ones.
+setInterval(() => {
+  for (const ws of wss.clients) {
+    if (!alive.has(ws)) {
+      ws.terminate();
+      continue;
+    }
+    alive.delete(ws);
+    ws.ping();
+  }
+}, 25_000).unref();
