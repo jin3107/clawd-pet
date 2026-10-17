@@ -11,6 +11,10 @@ import { Hud } from './ui/hud';
 import { drawFood, drawYard } from './yard/yard';
 
 const MAX_FRAME_MS = 250;
+// Below this many CSS px per world unit the pet would be unreadably small (phones), so the camera zooms in
+// and follows the pet instead of fitting the whole 2000-wide world on screen.
+const MIN_SCALE = 0.6;
+const CAMERA_RATE = 6;
 const CLICK_SLOP = 4;
 const HEAD_GAP = 2;
 const GREETING_MS = 6000;
@@ -32,6 +36,9 @@ export class Game {
   private local: LocalSource;
   private net: NetSource | null = null;
   private scale = 1;
+  private camX = 0;
+  private visibleW = WORLD_WIDTH;
+  private dpr = 1;
   private last = 0;
   private downAt: { x: number; y: number; head: boolean } | null = null;
   private hovering = false;
@@ -94,14 +101,18 @@ export class Game {
     this.local = new LocalSource(this.yard, SPRITE_META[next.id]);
   }
 
-  // The world is always WORLD_WIDTH wide so every client and the server agree on geometry;
-  // only the sky height follows the frame. `scale` is CSS px per world unit.
+  // The world is always WORLD_WIDTH wide so every client and the server agree on geometry; only the sky height
+  // follows the frame. `scale` is CSS px per world unit; on narrow frames the camera shows a window of the world.
   private resize(): void {
     const cssW = Math.max(1, window.innerWidth);
     const cssH = Math.max(1, window.innerHeight);
-    const dpr = window.devicePixelRatio || 1;
-    this.scale = cssW / WORLD_WIDTH;
-    layoutYard(this.yard, cssH / this.scale);
+    this.dpr = window.devicePixelRatio || 1;
+    this.scale = Math.max(cssW / WORLD_WIDTH, MIN_SCALE);
+    this.visibleW = cssW / this.scale;
+    const height = cssH / this.scale;
+    // On a tall portrait frame, put the ground about two thirds down rather than leaving the pet at the very bottom.
+    const portrait = cssH > cssW * 1.2;
+    layoutYard(this.yard, height, portrait ? Math.round(height * 0.66) : undefined);
     this.source.relayout();
     this.local.relayout();
 
@@ -109,14 +120,25 @@ export class Game {
       el.style.width = `${cssW}px`;
       el.style.height = `${cssH}px`;
     }
-    this.canvas.width = Math.round(cssW * dpr);
-    this.canvas.height = Math.round(cssH * dpr);
-    this.ctx.setTransform(this.canvas.width / this.yard.width, 0, 0, this.canvas.height / this.yard.height, 0, 0);
+    this.canvas.width = Math.round(cssW * this.dpr);
+    this.canvas.height = Math.round(cssH * this.dpr);
+  }
+
+  private updateCamera(centerX: number, dtMs: number): void {
+    const maxCam = Math.max(0, WORLD_WIDTH - this.visibleW);
+    if (maxCam === 0) {
+      this.camX = 0;
+      return;
+    }
+    // Held still while a drag is in progress, otherwise the pointer and the camera chase each other.
+    if (this.downAt) return;
+    const target = Math.min(Math.max(centerX - this.visibleW / 2, 0), maxCam);
+    this.camX += (target - this.camX) * (1 - Math.exp((-dtMs / 1000) * CAMERA_RATE));
   }
 
   private toYard(e: PointerEvent): { x: number; y: number } {
     const r = this.canvas.getBoundingClientRect();
-    return { x: ((e.clientX - r.left) / r.width) * this.yard.width, y: ((e.clientY - r.top) / r.height) * this.yard.height };
+    return { x: (e.clientX - r.left) / this.scale + this.camX, y: (e.clientY - r.top) / this.scale };
   }
 
   private bindPointer(): void {
@@ -201,7 +223,10 @@ export class Game {
     src.update(dt);
     const v = src.view();
 
+    this.updateCamera(v.x + this.sprite.flipAxisX, dt);
     const { ctx } = this;
+    const k = this.dpr * this.scale;
+    ctx.setTransform(k, 0, 0, k, -this.camX * k, 0);
     drawYard(ctx, this.yard, now);
     this.renderer.setTags(v.tags, now);
     this.renderer.draw(ctx, Math.round(v.x), Math.round(v.y), v.facing, now);
@@ -209,7 +234,7 @@ export class Game {
 
     this.syncBubble(v.careText, t);
     if (this.bubble.visible) {
-      const cx = (v.x + this.sprite.flipAxisX) * this.scale;
+      const cx = (v.x + this.sprite.flipAxisX - this.camX) * this.scale;
       this.bubble.place(cx, v.y * this.scale - HEAD_GAP, this.stage.clientWidth);
     }
 

@@ -19,10 +19,10 @@ export function createYard(): Yard {
 }
 
 /** Mutates in place: PetBrain and the drawing code hold the same Yard object. */
-export function layoutYard(yard: Yard, height: number): void {
+export function layoutYard(yard: Yard, height: number, groundY = height - GROUND_BAND): void {
   yard.width = WORLD_WIDTH;
   yard.height = height;
-  yard.groundY = height - GROUND_BAND;
+  yard.groundY = groundY;
   const [rock, crate] = yard.obstacles;
   rock.x = Math.round(WORLD_WIDTH * 0.23 - rock.w / 2);
   crate.x = Math.round(WORLD_WIDTH * 0.62 - crate.w / 2);

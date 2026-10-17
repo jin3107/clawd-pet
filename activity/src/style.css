@@ -128,3 +128,19 @@ body {
   background: var(--ink);
   pointer-events: none;
 }
+
+#hud {
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  left: calc(env(safe-area-inset-left, 0px) + 12px);
+}
+
+@media (pointer: coarse) {
+  #hud button {
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+
+  #presence {
+    font-size: 14px;
+  }
+}

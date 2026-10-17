@@ -82,6 +82,11 @@ export function drawYard(
   ctx.fillStyle = '#A27549';
   for (let x = 8; x < w; x += 22) ctx.fillRect(x + ((x * 7) % 11), groundY + 14 + ((x * 3) % 5) * 6, 4, 2);
 
+  ctx.fillStyle = '#AE8257';
+  ctx.fillRect(0, groundY + 70, w, h - groundY - 70);
+  ctx.fillStyle = '#A27549';
+  ctx.fillRect(0, groundY + 170, w, h - groundY - 170);
+
   for (const o of yard.obstacles) drawObstacle(ctx, o, groundY);
 
   const postH = Math.min(120, groundY - 10);
