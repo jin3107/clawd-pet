@@ -1,3 +1,4 @@
+import { xBounds } from './geometry';
 import type { SpriteConfig, Yard } from './types';
 
 // Constants carried over from the Electron build's main.js so the pet moves identically.
@@ -13,15 +14,28 @@ const CHUTE_MAX_VY = 1.6;
 
 export type PetState =
   | 'idle' | 'walk' | 'surf' | 'climb' | 'code' | 'jump' | 'music' | 'soccer'
-  | 'held' | 'fall' | 'pat' | 'think' | 'coffee' | 'butterfly';
+  | 'held' | 'fall' | 'pat' | 'think' | 'coffee' | 'butterfly' | 'eat';
 
 const PATTABLE = new Set<PetState>(['idle', 'walk', 'code', 'jump', 'music', 'soccer', 'pat']);
 
 export interface BrainOptions {
   yard: Yard;
-  sprite: Pick<SpriteConfig, 'body' | 'tricks'>;
+  sprite: Pick<SpriteConfig, 'body' | 'tricks' | 'anchors'>;
   random?: () => number;
 }
+
+/** A cookie. `ry` is the y of its centre measured from the ground line; `s` is its size (1 = whole). */
+export interface Food {
+  x: number;
+  ry: number;
+  s: number;
+}
+
+const FOOD_SIZE = 14;
+const FOOD_REST_RY = -FOOD_SIZE / 2;
+const EAT_STAND_GAP = 40;
+const PHASE_TICKS = { reach: 14, carry: 18, toss: 10, chew: 70 } as const;
+type EatPhase = keyof typeof PHASE_TICKS;
 
 /** Pure simulation: no DOM, no timers. Feed it time with update(dtMs). */
 export class PetBrain {
@@ -30,9 +44,11 @@ export class PetBrain {
   facing: 1 | -1 = 1;
   state: PetState = 'idle';
   careActive = false;
+  food: Food | null = null;
 
   private readonly yard: Yard;
   private readonly body: SpriteConfig['body'];
+  private readonly anchors: SpriteConfig['anchors'];
   private readonly tricks: string[];
   private readonly rand: () => number;
 
@@ -46,6 +62,11 @@ export class PetBrain {
   private codePhase: 'typing' | 'closing' = 'typing';
   private coffeePhase: 'lift' | 'sip' = 'lift';
   private pendingClimb = false;
+  private pendingEat = false;
+  private foodLanded = false;
+  private foodVy = 0;
+  private eatPhase: EatPhase = 'reach';
+  private phaseT = 0;
   private fallChute = false;
   private fallScared = false;
 
@@ -61,6 +82,7 @@ export class PetBrain {
     this.yard = opts.yard;
     this.body = opts.sprite.body;
     this.tricks = opts.sprite.tricks;
+    this.anchors = opts.sprite.anchors;
     this.rand = opts.random ?? Math.random;
     this.x = (this.minX() + this.maxX()) / 2;
     this.y = this.groundTop(this.x);
@@ -71,11 +93,11 @@ export class PetBrain {
   // ---- geometry -----------------------------------------------------------
 
   private minX(): number {
-    return this.yard.wallT - this.body.left;
+    return xBounds(this.yard, this.body)[0];
   }
 
   private maxX(): number {
-    return this.yard.width - this.yard.wallT - this.body.right;
+    return xBounds(this.yard, this.body)[1];
   }
 
   private clampX(x: number): number {
@@ -137,6 +159,8 @@ export class PetBrain {
     this.patHover = false;
     this.patUntil = 0;
     this.pendingClimb = false;
+    this.pendingEat = false;
+    this.putFoodBack();
     this.dragOffX = px - this.x;
     this.dragOffY = py - this.y;
     this.careActive = false;
@@ -164,19 +188,111 @@ export class PetBrain {
     this.fallScared = this.rand() < 0.5;
   }
 
-  /** Returns false (and does nothing) if the pet is busy being dragged, falling or climbing. */
+  /** Returns false (and does nothing) if the pet is busy being dragged, falling, climbing or eating. */
   showCare(message: string): boolean {
-    if (this.dragging || this.state === 'fall' || this.state === 'climb') return false;
+    if (this.dragging || this.state === 'fall' || this.state === 'climb' || this.state === 'eat') return false;
     this.state = 'think';
     this.pendingClimb = false;
+    this.pendingEat = false;
     this.frames = Math.max(200, Math.min(360, message.length * 9));
     this.careActive = true;
     return true;
   }
 
+  /** Drops a cookie somewhere away from the pet. Returns false if one is already lying around. */
+  feed(): boolean {
+    if (this.food) return false;
+    const center = (this.body.left + this.body.right) / 2;
+    const lo = this.minX() + center + 60;
+    const hi = this.maxX() + center - 60;
+    const clear = (fx: number) =>
+      !this.yard.obstacles.some((o) => fx > o.x - 12 && fx < o.x + o.w + 12) && Math.abs(fx - (this.x + center)) > 120;
+    let fx = lo + this.rand() * Math.max(0, hi - lo);
+    for (let tries = 0; tries < 20 && !clear(fx); tries++) fx = lo + this.rand() * Math.max(0, hi - lo);
+    this.food = { x: fx, ry: -160, s: 1 };
+    this.foodLanded = false;
+    this.foodVy = 0;
+    return true;
+  }
+
+  /** If the pet lets go mid-meal (dragged away), the cookie drops back to the ground where it is. */
+  private putFoodBack(): void {
+    if (this.state !== 'eat' || !this.food) return;
+    this.food.ry = FOOD_REST_RY;
+    this.food.s = 1;
+    this.foodLanded = true;
+  }
+
+  private stepFood(): void {
+    const f = this.food;
+    if (!f || this.foodLanded) return;
+    this.foodVy += GRAVITY;
+    f.ry += this.foodVy;
+    if (f.ry >= FOOD_REST_RY) {
+      f.ry = FOOD_REST_RY;
+      this.foodLanded = true;
+      if (this.state === 'idle') this.frames = 0;
+    }
+  }
+
+  /** A sprite-space point in world coordinates for the current position and facing (mirrors about the body centre). */
+  private worldPoint([sx, sy]: [number, number]): { x: number; ry: number } {
+    const center = (this.body.left + this.body.right) / 2;
+    const px = this.facing === 1 ? sx : 2 * center - sx;
+    return { x: this.x + px, ry: this.y + sy - this.yard.groundY };
+  }
+
+  private setPhase(phase: EatPhase): void {
+    this.eatPhase = phase;
+    this.phaseT = 0;
+  }
+
+  private stepEat(): void {
+    const f = this.food;
+    this.phaseT++;
+    const p = Math.min(1, this.phaseT / PHASE_TICKS[this.eatPhase]);
+    const a = this.anchors;
+    const lerp = (u: number, v: number, k: number) => u + (v - u) * k;
+    const ease = (k: number) => k * k * (3 - 2 * k);
+
+    switch (this.eatPhase) {
+      case 'reach':
+        if (p >= 1) this.setPhase('carry');
+        break;
+      case 'carry': {
+        if (f) {
+          const d = this.worldPoint(a.handDown);
+          const u = this.worldPoint(a.handUp);
+          f.x = lerp(d.x, u.x, ease(p));
+          f.ry = lerp(d.ry, u.ry, ease(p));
+        }
+        if (p >= 1) this.setPhase('toss');
+        break;
+      }
+      case 'toss': {
+        if (f) {
+          const u = this.worldPoint(a.handUp);
+          const m = this.worldPoint(a.mouth);
+          f.x = lerp(u.x, m.x, p);
+          f.ry = lerp(u.ry, m.ry, p) - 16 * Math.sin(Math.PI * p);
+          f.s = 1 - 0.6 * p;
+        }
+        if (p >= 1) {
+          this.food = null;
+          this.setPhase('chew');
+        }
+        break;
+      }
+      case 'chew':
+        if (p >= 1) this.startIdle();
+        break;
+    }
+  }
+
   /** Class-list equivalent of the Electron renderer's body classes; drives sprite poses. */
   tags(): string[] {
     const t: string[] = [this.state];
+    if (this.state === 'eat') t.push(this.eatPhase);
     if (this.state === 'climb' && this.climbPhase === 'pause') t.push('hang');
     if (this.state === 'code' && this.codePhase === 'closing') t.push('closing');
     if (this.state === 'coffee' && this.coffeePhase === 'sip') t.push('sipping');
@@ -202,6 +318,24 @@ export class PetBrain {
     this.state = 'idle';
     this.frames = 60 + this.rand() * 180;
     this.pendingClimb = false;
+    this.pendingEat = false;
+  }
+
+  private goEat(food: { x: number }): void {
+    const center = (this.body.left + this.body.right) / 2;
+    const dir = food.x >= this.x + center ? 1 : -1;
+    this.targetX = this.clampX(food.x - center - dir * EAT_STAND_GAP);
+    this.facing = dir;
+    this.pendingEat = true;
+    this.state = 'walk';
+  }
+
+  private beginEat(): void {
+    if (!this.food) return this.startIdle();
+    const center = (this.body.left + this.body.right) / 2;
+    this.facing = this.food.x >= this.x + center ? 1 : -1;
+    this.state = 'eat';
+    this.setPhase('reach');
   }
 
   private beginClimb(): void {
@@ -210,6 +344,10 @@ export class PetBrain {
   }
 
   private nextAction(): void {
+    if (this.food && this.foodLanded) {
+      this.goEat(this.food);
+      return;
+    }
     if (this.simMs - this.lastCursorMove > AFK_MS) {
       if (this.rand() < 0.25) {
         this.state = 'jump';
@@ -277,6 +415,7 @@ export class PetBrain {
   private step(): void {
     this.tickN++;
     this.simMs += STEP_MS;
+    this.stepFood();
 
     if (this.dragging) {
       this.state = 'held';
@@ -305,7 +444,8 @@ export class PetBrain {
       this.stepClimb();
     } else {
       this.y = this.groundTop(this.x);
-      if (--this.frames <= 0) this.endPhase();
+      if (this.state === 'eat') this.stepEat();
+      else if (--this.frames <= 0) this.endPhase();
     }
 
     if (this.careActive && this.state !== 'think') this.careActive = false;
@@ -315,7 +455,10 @@ export class PetBrain {
     const dx = this.targetX - this.x;
     if (this.state === 'walk') {
       if (Math.abs(dx) < 4) {
-        if (this.pendingClimb) {
+        if (this.pendingEat) {
+          this.pendingEat = false;
+          this.beginEat();
+        } else if (this.pendingClimb) {
           this.pendingClimb = false;
           this.facing = this.targetX > (this.minX() + this.maxX()) / 2 ? 1 : -1;
           this.beginClimb();

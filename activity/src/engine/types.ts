@@ -83,6 +83,8 @@ export interface SpriteConfig {
   faces: 1 | -1;
   /** Torso extents (collision with walls/obstacles) and the y of the soles. */
   body: { left: number; right: number; footY: number };
+  /** Points in sprite space (facing right) the eating sequence travels through. */
+  anchors: { handDown: [number, number]; handUp: [number, number]; mouth: [number, number] };
   hitbox: Box;
   headZone: Box;
   /** Tricks this model performs while idle. Names are understood by PetBrain. */

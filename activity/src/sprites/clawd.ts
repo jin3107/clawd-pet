@@ -1,5 +1,6 @@
 import type { Anim, Pose, SpriteConfig } from '../engine/types';
 import { anim, group, rect } from './dsl';
+import { SPRITE_META } from './meta';
 
 const INK = '#242320';
 const BODY = '#D9835F';
@@ -118,8 +119,8 @@ const root = group(
               { names: ['ball'], hidden: true },
             ),
             laptop,
-            rect(-7, 14, 17, 12, BODY, ['arm', 'arm-l']),
-            rect(70, 14, 17, 12, BODY, ['arm', 'arm-r']),
+            { ...rect(-7, 14, 17, 12, BODY, ['arm', 'arm-l']), origin: [10, 20] as const },
+            { ...rect(70, 14, 17, 12, BODY, ['arm', 'arm-r']), origin: [70, 20] as const },
             group([rect(8, -2, 64, 6, '#3B3B42'), rect(2, 4, 10, 14, '#A9CDC7'), rect(68, 4, 10, 14, '#A9CDC7')], {
               names: ['headphones'],
               hidden: true,
@@ -306,6 +307,37 @@ const poses: Record<string, Pose> = {
       'heart-2': floatUp(0.6),
     },
   },
+  // Eating is four phases (see PetBrain.stepEat): crouch + reach down, lift the cookie, toss it into the mouth, chew.
+  // Durations match PHASE_TICKS (30ms per tick); `once` anims hold their last value until the phase changes.
+  'eat.reach': {
+    anim: {
+      'arm-r': anim(0.42, 'ease-out', [{ at: 0, rot: 0 }, { at: 1, rot: 75 }], { once: true }),
+      bob: anim(0.42, 'ease-out', [{ at: 0, ty: 0 }, { at: 1, ty: 3 }], { once: true }),
+      'arm-l': swayL(1.8),
+    },
+  },
+  'eat.carry': {
+    anim: {
+      'arm-r': anim(0.54, 'ease-in-out', [{ at: 0, rot: 75 }, { at: 1, rot: -60 }], { once: true }),
+      bob: anim(0.54, 'ease-in-out', [{ at: 0, ty: 3 }, { at: 1, ty: 0 }], { once: true }),
+      'arm-l': swayL(1.8),
+    },
+  },
+  'eat.toss': {
+    anim: {
+      'arm-r': anim(0.3, 'ease-out', [{ at: 0, rot: -60 }, { at: 1, rot: -15 }], { once: true }),
+      'arm-l': swayL(1.8),
+    },
+  },
+  'eat.chew': {
+    show: ['eyes-h'],
+    hide: ['eyes-n'],
+    anim: {
+      'arm-r': anim(0.4, 'ease-out', [{ at: 0, rot: -15 }, { at: 1, rot: 0 }], { once: true }),
+      bob: anim(0.3, 'steps', [{ at: 0, ty: 0, sy: 1 }, { at: 0.5, ty: -1.5, sy: 1.03 }, { at: 1, ty: 0, sy: 1 }]),
+      'arm-l': swayL(1.8),
+    },
+  },
   think: {
     show: ['think-bubble'],
     set: { 'think-bubble': { ty: -6 } },
@@ -323,10 +355,9 @@ export const clawd: SpriteConfig = {
   label: 'Clawd',
   flipAxisX: 40,
   faces: 1,
-  body: { left: 10, right: 70, footY: 55 },
+  ...SPRITE_META.clawd,
   hitbox: { x: -7, y: 0, w: 94, h: 56 },
   headZone: { x: 10, y: 0, w: 60, h: 20 },
-  tricks: ['code', 'jump', 'music', 'soccer', 'climb', 'surf', 'think', 'coffee'],
   root,
   poses,
 };
