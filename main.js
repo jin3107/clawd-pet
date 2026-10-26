@@ -8,10 +8,16 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 app.disableHardwareAcceleration();
+// Memory: fold the GPU process into main, share one renderer between windows, and cap V8's heap (the pet is tiny).
+app.commandLine.appendSwitch('in-process-gpu');
+app.commandLine.appendSwitch('renderer-process-limit', '1');
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=48');
 
 const PET_W = 100;
 const PET_H = 68;
-const GROUND_PAD = 4;
+// Transparent rows under each sprite's feet inside the 68px window; the pad pushes the window below the work area
+// so the feet land on the taskbar edge (measured per model: clawd ~5px, cat ~18px, sheep ~18px).
+const GROUND_PAD_BY_MODEL = { clawd: 4, cat: 17, sheep: 18 };
 const WALK_SPEED = 1.6;
 const SURF_SPEED = 4.5;
 const CLIMB_SPEED = 1.2;
@@ -76,7 +82,8 @@ function workArea() {
 
 function baseY() {
   const wa = workArea();
-  return wa.y + wa.height - PET_H + GROUND_PAD;
+  const model = petConfig?.petModel || 'clawd';
+  return wa.y + wa.height - PET_H + (GROUND_PAD_BY_MODEL[model] ?? GROUND_PAD_BY_MODEL.clawd);
 }
 
 function clampX(x) {
@@ -117,7 +124,9 @@ function createWindow() {
   setTimeout(tick, scheduledDelay);
 }
 
-function createBubbleWindow() {
+// The bubble window is created per care message and destroyed on hide: it only shows about once an hour, so keeping
+// its renderer alive would cost memory for nothing.
+function createBubbleWindow(text) {
   bubbleWin = new BrowserWindow({
     width: BUBBLE_W,
     height: 10,
@@ -139,11 +148,15 @@ function createBubbleWindow() {
   });
   bubbleWin.setAlwaysOnTop(true, 'screen-saver');
   bubbleWin.setIgnoreMouseEvents(true, { forward: true });
+  bubbleWin.webContents.once('did-finish-load', () => {
+    if (bubbleWin && !bubbleWin.isDestroyed()) bubbleWin.webContents.send('bubble-text', text);
+  });
   bubbleWin.loadFile(path.join(__dirname, 'renderer', 'bubble.html'));
 }
 
 function hideBubble() {
-  if (bubbleWin && !bubbleWin.isDestroyed()) bubbleWin.hide();
+  if (bubbleWin && !bubbleWin.isDestroyed()) bubbleWin.destroy();
+  bubbleWin = null;
 }
 
 function pickTarget(minDist) {
@@ -348,10 +361,13 @@ function tick() {
     state === 'fall' ? `fall${fallChute ? '-chute' : ''}${fallScared ? '-scared' : ''}` :
     state;
   if (sentState !== lastSentState || facing !== lastSentFacing || careBubbleActive !== lastSentCareMsg) {
-    win.webContents.send('pet-state', { state: sentState, facing, careMsg: careBubbleActive });
-    lastSentState = sentState;
-    lastSentFacing = facing;
-    lastSentCareMsg = careBubbleActive;
+    // The frame can be mid-reload (model switch) or gone (quit); skip and retry on the next tick instead of throwing.
+    try {
+      win.webContents.send('pet-state', { state: sentState, facing, careMsg: careBubbleActive });
+      lastSentState = sentState;
+      lastSentFacing = facing;
+      lastSentCareMsg = careBubbleActive;
+    } catch {}
   }
 
   const nextDelay = !dragging && STATIONARY.has(state) ? SLOW_MS : FAST_MS;
@@ -411,7 +427,8 @@ function showCareMessage() {
   state = 'think';
   frames = Math.max(200, Math.min(360, msg.length * 9));
   careBubbleActive = true;
-  if (bubbleWin && !bubbleWin.isDestroyed()) bubbleWin.webContents.send('bubble-text', msg);
+  hideBubble();
+  createBubbleWindow(msg);
 }
 
 function buildTrayMenu() {
@@ -432,6 +449,7 @@ function buildTrayMenu() {
           buildTrayMenu();
         },
       },
+      { label: 'Đổi pet...', click: () => createModelPickerWindow(false, true) },
       { label: 'Cài đặt...', click: () => createSettingsWindow(false) },
       { type: 'separator' },
       { label: 'Exit', click: () => app.quit() },
@@ -451,7 +469,7 @@ ipcMain.handle('pet-get-model', () => (petConfig?.petModel || loadConfig().petMo
 
 let modelPickerWin = null;
 
-function createModelPickerWindow(isFirstRun) {
+function createModelPickerWindow(isFirstRun, switching = false) {
   if (modelPickerWin && !modelPickerWin.isDestroyed()) {
     modelPickerWin.focus();
     return;
@@ -481,6 +499,12 @@ function createModelPickerWindow(isFirstRun) {
     saveConfig(config);
     petConfig = config;
     modelPickerWin.close();
+    if (switching) {
+      // pet.js reads the model once at load, so reload the sprite window and force the state to be re-sent.
+      lastSentState = null;
+      if (win && !win.isDestroyed()) win.webContents.reload();
+      return;
+    }
     createSettingsWindow(isFirstRun);
   };
   ipcMain.once('model-pick', onPick);
@@ -488,6 +512,7 @@ function createModelPickerWindow(isFirstRun) {
   modelPickerWin.on('closed', () => {
     ipcMain.removeListener('model-pick', onPick);
     modelPickerWin = null;
+    if (switching) return;
     if (!picked) {
       // User closed the picker without choosing — keep the default model
       // (loadConfig()'s fallback) and continue into settings as normal.
@@ -556,7 +581,6 @@ ipcMain.handle('settings-get-initial', () => ({
 
 function startApp() {
   createWindow();
-  createBubbleWindow();
 
   tray = new Tray(path.join(__dirname, 'renderer', 'tray-icon.png'));
   tray.setToolTip(petConfig.petName);
