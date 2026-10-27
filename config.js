@@ -20,6 +20,7 @@ const DEFAULT_CONFIG = {
   customGreetings: [],
   intervalMinMin: 60,
   intervalMaxMin: 75,
+  awareness: false, // opt-in: watch the foreground app (never screenshots) so the pet reacts to what the user is doing
 };
 
 function configPath() {

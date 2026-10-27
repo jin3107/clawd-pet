@@ -1,6 +1,7 @@
 const { app, BrowserWindow, screen, Tray, Menu, ipcMain } = require('electron');
 const path = require('path');
 const { DEFAULT_GREETINGS, loadConfig, saveConfig, greetingsFor } = require('./config');
+const awareness = require('./awareness');
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -71,6 +72,12 @@ let lastCursor = { x: 0, y: 0 };
 let lastCursorMove = Date.now();
 let tickN = 0;
 let fleeing = false;
+let activity = 'other'; // latest category from the awareness observer
+
+const MIRROR_TRICK = { coding: 'code', music: 'music' };
+const MIRROR_CHANCE = 0.7;
+// States that are safe to cut short; think (bubble), fall, climb, held and pat are left to finish.
+const REACT_INTERRUPTIBLE = new Set(['idle', 'walk', 'jump', 'soccer', 'surf', 'music', 'code', 'coffee']);
 
 const DODGE_MARGIN = 8;
 const DODGE_DIST = 260;
@@ -177,7 +184,28 @@ function startIdle() {
   fleeing = false;
 }
 
+// Only Clawd has the code/music tricks (cat and sheep skip them), so the others never mirror.
+function mirrorTrick() {
+  if (petConfig?.petModel !== 'clawd') return null;
+  return MIRROR_TRICK[activity] || null;
+}
+
+// When the user's activity changes, switch right away instead of waiting for the next idle roll.
+function reactToActivity() {
+  const mirror = mirrorTrick();
+  if (!mirror || state === mirror || dragging || patting || !REACT_INTERRUPTIBLE.has(state)) return;
+  fleeing = false;
+  startTrick(mirror);
+}
+
 function nextAction() {
+  // User is away from the machine: stay put instead of wandering (also saves the 30ms tick work).
+  if (activity === 'away') {
+    startIdle();
+    frames = 300;
+    return;
+  }
+
   const afk = Date.now() - lastCursorMove > AFK_MS;
   if (afk) {
     if (Math.random() < 0.25) {
@@ -187,6 +215,13 @@ function nextAction() {
       state = 'walk';
       targetX = clampX(lastCursor.x - PET_W / 2 + (Math.random() * 160 - 80));
     }
+    return;
+  }
+
+  // Mirror what the user is doing most of the time, but keep some wandering so it does not look frozen.
+  const mirror = mirrorTrick();
+  if (mirror && Math.random() < MIRROR_CHANCE) {
+    startTrick(mirror);
     return;
   }
 
@@ -203,7 +238,10 @@ function nextAction() {
     : petConfig?.petModel === 'cat'
       ? ['jump', 'climb', 'think', 'butterfly']
       : ['jump', 'climb', 'think'];
-  const trick = tricks[Math.floor(Math.random() * tricks.length)];
+  startTrick(tricks[Math.floor(Math.random() * tricks.length)]);
+}
+
+function startTrick(trick) {
   switch (trick) {
     case 'code':
       state = 'code';
@@ -416,19 +454,38 @@ ipcMain.on('pet-pat', (_e, on) => {
 function scheduleCareMessage() {
   const delay = CARE_MIN_MS + Math.random() * (CARE_MAX_MS - CARE_MIN_MS);
   setTimeout(() => {
-    showCareMessage();
+    // With awareness on, the gate decides when to speak; the blind timer would just be noise on top.
+    if (!awareness.isRunning()) showCareMessage();
     scheduleCareMessage();
   }, delay);
 }
 
-function showCareMessage() {
-  if (!win || win.isDestroyed() || dragging || state === 'fall' || state === 'climb') return;
-  const msg = CARE_MESSAGES[Math.floor(Math.random() * CARE_MESSAGES.length)];
+// Returns true if the bubble was shown (the pet may be busy falling/climbing/being dragged).
+function showCareMessage(text) {
+  if (!win || win.isDestroyed() || dragging || state === 'fall' || state === 'climb') return false;
+  const msg = text || CARE_MESSAGES[Math.floor(Math.random() * CARE_MESSAGES.length)];
   state = 'think';
   frames = Math.max(200, Math.min(360, msg.length * 9));
   careBubbleActive = true;
   hideBubble();
   createBubbleWindow(msg);
+  return true;
+}
+
+function setAwareness(on) {
+  if (on) {
+    awareness.start({
+      onActivity: (category) => {
+        const changed = category !== activity;
+        activity = category;
+        if (changed) reactToActivity();
+      },
+      onSay: (text) => showCareMessage(text),
+    });
+  } else {
+    awareness.stop();
+    activity = 'other';
+  }
 }
 
 function buildTrayMenu() {
@@ -449,6 +506,18 @@ function buildTrayMenu() {
           buildTrayMenu();
         },
       },
+      {
+        label: 'Pet quan sát app đang dùng',
+        type: 'checkbox',
+        checked: !!petConfig?.awareness,
+        click: (item) => {
+          petConfig = { ...(petConfig || loadConfig()), awareness: item.checked };
+          saveConfig(petConfig);
+          setAwareness(item.checked);
+          buildTrayMenu();
+        },
+      },
+      ...(app.isPackaged ? [] : [{ label: '[dev] Test: nói ngay', click: () => showCareMessage(awareness.previewLine()) }]),
       { label: 'Đổi pet...', click: () => createModelPickerWindow(false, true) },
       { label: 'Cài đặt...', click: () => createSettingsWindow(false) },
       { type: 'separator' },
@@ -586,6 +655,7 @@ function startApp() {
   tray.setToolTip(petConfig.petName);
   buildTrayMenu();
   scheduleCareMessage();
+  if (petConfig.awareness) setAwareness(true);
 
   screen.on('display-metrics-changed', () => {
     currentX = clampX(currentX);
