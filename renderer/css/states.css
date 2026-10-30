@@ -30,22 +30,49 @@ body.idle .arm-r {
   animation: arm-sway-r 2.4s ease-in-out infinite;
 }
 
-body.surf #board {
+/* ── Surf ── a real sea: two wave layers scroll against the direction of travel (the flip group mirrors them with the
+   pet), the board has a raised nose, spray trails behind it. Everything moves in whole-pixel steps. */
+body.surf #board,
+body.surf #sea-back,
+body.surf #sea-front {
   display: inline;
-  animation: surf-board 0.6s ease-in-out infinite;
-  transform-origin: 40px 56px;
 }
 
+body.surf .wave-back {
+  animation: wave-back 0.9s steps(6) infinite;
+}
+
+body.surf .wave-front {
+  animation: wave-front 0.35s steps(4) infinite;
+}
+
+body.surf .spray {
+  animation: spray 0.3s steps(1) infinite;
+}
+
+body.surf #board {
+  animation: surf-board 0.6s steps(1) infinite;
+}
+
+/* knees bent and rocking with the swell, arms out for balance, happy eyes */
 body.surf #bob-group {
-  animation: surf-bob 0.6s ease-in-out infinite;
+  animation: surf-bob 0.6s steps(1) infinite;
 }
 
 body.surf .arm-l {
-  animation: arm-sway-l 0.6s ease-in-out infinite;
+  animation: surf-arm-l 0.45s steps(1) infinite;
 }
 
 body.surf .arm-r {
-  animation: arm-sway-r 0.6s ease-in-out infinite;
+  animation: surf-arm-r 0.45s steps(1) infinite;
+}
+
+body.surf #eyes-h {
+  display: inline;
+}
+
+body.surf #eyes-n {
+  display: none;
 }
 
 body.climb #bob-group {
@@ -75,35 +102,172 @@ body.hang .eye {
   animation: look-around 3s ease-in-out infinite;
 }
 
-body.code #laptop {
+/* ── Seated coding ─────────────────────────────────────────────────────────────────────────────────────────────
+   Frame-accurate to the real Clawd recording: every phase is a hard-cut pose (no tweening), in the order
+     prep → raise → hold → swing → land → ears → sit → typing → up → carry → away → relax
+   prep    standing turned toward the laptop side: front arm shrinks to a small low bump, back eye squints
+   raise   front arm lifts a folded laptop above the head
+   hold    the laptop is held high, open and upright (an "L": base in the hand, screen standing up)
+   swing   the laptop comes down to chest height, arm stretched out
+   land    the laptop lies open on the ground in front; the screen opens in three steps
+   ears    both arms shoot up like ears, the torso's back side gets shaded (turning to sit)
+   sit     seated, legs in slanted steps, one arm still bent up      typing  both hands tap
+   up      one arm bent up again (about to leave)    carry  standing, closed laptop held low in front
+   away    laptop gone, back to the standing "prep" pose            relax  arms return to idle size
+   Group classes from pet.js: cs-seated (sit typing up)  cs-shade (ears sit typing up carry)
+                               cs-look (sit typing up carry)  cs-open (land ears sit typing up)
+   Everything lives inside the flip group, so facing left mirrors the whole pose. */
+
+body.code .arm {
+  transition: none;
+}
+
+/* while coding the pet is turned toward the laptop: the front (right, unflipped) arm is foreshortened to a small low
+   bump; the back arm keeps its normal size. Phases below override the front arm. */
+body.code .arm-r {
+  x: 70px;
+  y: 26px;
+  width: 9px;
+  height: 9px;
+}
+
+body.cp-prep #eyes-n .eye:first-child {
+  scale: 1 0.25;
+}
+
+body.cp-raise .arm-r { y: 3px;  width: 10px; height: 15px; }
+body.cp-hold  .arm-r { y: -8px; width: 16px; height: 10px; }
+body.cp-swing .arm-r { y: 20px; width: 14px; height: 8px; }
+body.cp-land  .arm-r { y: 28px; width: 13px; height: 12px; }
+body.cp-carry .arm-r { y: 18px; width: 16px; height: 13px; }
+body.cp-relax .arm-r { y: 22px; width: 12px; height: 11px; }
+
+/* "ears": both arms straight up on the top corners */
+body.cp-ears .arm-l { x: 10px; y: -11px; width: 15px; height: 11px; }
+body.cp-ears .arm-r { x: 55px; y: -11px; width: 15px; height: 11px; }
+
+/* ── laptop ── default spot is the ground in front; only the carried poses move it */
+#laptop,
+#laptop-hold {
+  display: none;
+}
+
+#laptop {
+  transform: translate(72px, 45px);
+}
+
+body.cp-hold #laptop-hold {
   display: inline;
-  transform-origin: 87px 53px;
 }
 
-body.code.closing #laptop {
-  transform: scaleY(0.08);
-  transition: transform 0.3s ease-in-out;
+body.cp-raise #laptop,
+body.cp-swing #laptop,
+body.cp-carry #laptop,
+body.cs-open #laptop {
+  display: inline;
 }
 
-body.code #bob-group {
+body.cp-raise #laptop { transform: translate(74px, -5px); }
+body.cp-swing #laptop { transform: translate(82px, 22px); }
+body.cp-carry #laptop { transform: translate(78px, 22px); }
+
+#laptop .lid,
+#laptop .scr {
+  display: none;
+}
+
+/* closed (lid slab) while carried, open (screen) once it is on the ground */
+body.cp-raise #laptop .lid,
+body.cp-swing #laptop .lid,
+body.cp-carry #laptop .lid {
+  display: inline;
+}
+
+body.cs-open #laptop .scr {
+  display: inline;
+}
+
+body.cp-land #laptop .scr-b,
+body.cp-land #laptop .scr-c {
+  visibility: hidden;
+  animation: reveal 0.01s steps(1) forwards;
+}
+
+body.cp-land #laptop .scr-b { animation-delay: 0.05s; }
+body.cp-land #laptop .scr-c { animation-delay: 0.1s; }
+
+/* sitting: slanted stepped legs replace the straight ones; the body drops to keep the feet on the ground line */
+body.cs-seated .leg {
+  display: none;
+}
+
+body.cs-seated #sit-legs {
+  display: inline;
+}
+
+body.cs-seated #bob-group {
   animation: sit-breathe 2.4s ease-in-out infinite;
 }
 
-body.code .leg {
-  transform: scaleY(0.5);
+/* turned toward the laptop: shaded back, eyes look to the front */
+body.cs-shade #torso-shade {
+  display: inline;
 }
 
-body.code .arm-l {
-  animation: type-arm-l 0.24s steps(1) infinite;
+body.cp-ears #torso-shade {
+  width: 7.5px;
 }
 
-body.code .arm-r {
+body.cs-look #eyes-n .eye:first-child {
+  translate: 15px 3px;
+}
+
+body.cs-look #eyes-n .eye:last-child {
+  translate: 7.5px 3px;
+}
+
+/* seated at the laptop both arms are on its side, like the real sprite: the far arm is a darker block that runs the
+   full height BEHIND the near arm, showing above it and as a thin dark sliver along its outer edge. Because it always
+   overlaps the near arm the pair stays one cluster while both hands tap. */
+body.cs-seated .arm-l {
+  x: 70px;
+  y: 17px;
+  width: 17.5px;
+  height: 26px;
+  fill: #BE684D;
+}
+
+body.cs-seated .arm-r {
+  y: 24px;
+  width: 15px;
+  height: 21px;
+}
+
+/* sit / up: the near arm is still bent up at the front instead of reaching the keys, and the far arm is not a dark
+   block yet: it tucks into the torso (same colour, so it disappears) */
+body.cp-sit .arm-r,
+body.cp-up .arm-r {
+  y: 8px;
+  width: 10px;
+  height: 12px;
+}
+
+body.cp-sit .arm-l,
+body.cp-up .arm-l {
+  x: 20px;
+  y: 17px;
+  width: 15px;
+  height: 20px;
+  fill: #D87656;
+}
+
+/* both hands type, out of phase: when one taps down the other comes up */
+body.cp-typing .arm-r {
   animation: type-arm-r 0.24s steps(1) infinite;
 }
 
-body.code.closing .arm-l,
-body.code.closing .arm-r {
-  animation: none;
+body.cp-typing .arm-l {
+  animation: type-arm-l 0.24s steps(1) infinite;
 }
 
 body.music #headphones,
@@ -112,68 +276,86 @@ body.music #notes {
   display: inline;
 }
 
+/* enjoying the beat: happy eyes instead of the round ones */
+body.music #eyes-h {
+  display: inline;
+}
+
+body.music #eyes-n {
+  display: none;
+}
+
+/* Hard-pixel beat: whole-pixel steps instead of rotation/easing, so every edge stays crisp. */
 body.music #bob-group {
-  animation: head-bang 0.5s ease-in-out infinite;
+  animation: dj-bob 0.5s steps(1) infinite;
+}
+
+body.music #dj-table {
+  animation: dj-table-hold 0.5s steps(1) infinite;
 }
 
 body.music .arm-l {
-  animation: arm-flap-l 0.5s ease-in-out infinite;
+  animation: dj-arm-l 0.5s steps(1) infinite;
 }
 
 body.music .arm-r {
-  animation: arm-flap-r 0.5s ease-in-out infinite;
+  animation: dj-arm-r 0.5s steps(1) infinite;
 }
 
 body.music .note-1 {
   animation: note-float 1.6s ease-out infinite;
 }
 
+/* ── Juggling (the "soccer" trick) ── the pet tosses the ball from one hand to the other in an arc OVER its head, and
+   catches it; the eyes follow the ball. One 2s loop on a shared clock, whole-pixel steps. The ball sits on the arm tip
+   (it is drawn before the arms, so the hand covers its lower edge like a cupped palm). */
 body.soccer #ball {
   display: inline;
-  animation: ball-arc 2.4s ease-in-out infinite;
-}
-
-body.soccer #bob-group {
-  transform-origin: 40px 55px;
-  animation: soccer-lean 2.4s ease-in-out infinite;
-}
-
-body.soccer .arm-l {
-  animation: arm-sway-l 0.55s ease-in-out infinite;
+  /* drawn around its own origin, so scaling here enlarges it in place; the translate animation then places its centre */
+  scale: 1.6;
+  animation: juggle-ball 2s steps(1) infinite;
 }
 
 body.soccer .arm-r {
-  animation: arm-sway-r 0.55s ease-in-out infinite;
+  animation: juggle-arm-r 2s steps(1) infinite;
 }
 
-body.soccer .leg:nth-of-type(1) { transform: translateX(-3px); }
-body.soccer .leg:nth-of-type(2) { transform: translateX(-1.5px); }
-body.soccer .leg:nth-of-type(3) { transform: translateX(1.5px); }
-body.soccer .leg:nth-of-type(4) { transform: translateX(3px); }
+body.soccer .arm-l {
+  animation: juggle-arm-l 2s steps(1) infinite;
+}
+
+body.soccer #bob-group {
+  animation: juggle-body 2s steps(1) infinite;
+}
+
+body.soccer #eyes-n {
+  animation: juggle-eyes 2s steps(1) infinite;
+}
+
+/* ── Coffee ── the hand holds the cup (no arm rotation, so the shoulder never opens a gap) and brings it to the face to
+   sip. lift: the cup rises into the hand;  sip: out, to the face, out, a short second sip. */
+body.coffee .arm-r {
+  x: 70px;
+  y: 22px;
+  width: 15px;
+  height: 9px;
+}
 
 body.coffee #cup {
   display: inline;
-  animation: cup-lift 0.35s ease-out forwards;
+  animation: cup-lift 0.3s steps(1) forwards;
 }
 
 body.coffee.sipping #cup {
-  animation: cup-sip 0.3s ease-in-out infinite alternate;
+  animation: cup-sip 1.6s steps(1) infinite;
+}
+
+body.coffee.sipping .arm-r {
+  animation: arm-sip 1.6s steps(1) infinite;
 }
 
 body.coffee #steam {
-  animation: steam-rise 1.4s ease-in-out infinite;
-}
-
-body.coffee .arm-r {
-  transform: rotate(-30deg);
-}
-
-body.coffee #bob-group {
-  animation: breathe 2.4s ease-in-out infinite;
-}
-
-body.coffee .arm-l {
-  animation: arm-sway-l 1.8s ease-in-out infinite;
+  animation: steam-rise 0.8s steps(1) infinite;
 }
 
 body.coffee.sipping #eyes-h {
@@ -247,6 +429,34 @@ body.fall.chute .arm-l,
 body.fall.chute .arm-r {
   animation: none;
   rotate: 0deg;
+}
+
+/* Clawd held in the air: the straight legs give way to hanging legs (upper part fixed, feet swing in whole-pixel steps)
+   so nothing floats away from the torso */
+body.model-clawd.held .leg {
+  display: none;
+}
+
+body.model-clawd.held #hang-legs {
+  display: inline;
+}
+
+body.model-clawd.held .hf-a {
+  animation: hang-foot-a 0.8s steps(1) infinite;
+}
+
+body.model-clawd.held .hf-b {
+  animation: hang-foot-b 0.8s steps(1) infinite;
+}
+
+/* Clawd's parachute opens in stages after a short free fall, then bobs side to side in whole pixels */
+body.model-clawd.fall.chute #parachute {
+  transform-origin: 40px 0;
+  animation: chute-open 0.5s steps(1) 0.2s both;
+}
+
+body.model-clawd.fall.chute .chute-body {
+  animation: chute-bob 1.2s steps(1) 0.7s infinite;
 }
 
 body.fall.scared #eyes-n {

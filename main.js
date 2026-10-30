@@ -52,7 +52,7 @@ let facing = 1;
 let state = 'idle';
 let frames = 60;
 let climbPhase = 'up';
-let codePhase = 'typing';
+let codePhase = 'prep';
 let coffeePhase = 'lift';
 let fallChute = false;
 let fallScared = false;
@@ -78,6 +78,17 @@ const MIRROR_TRICK = { coding: 'code', music: 'music' };
 const MIRROR_CHANCE = 0.7;
 // States that are safe to cut short; think (bubble), fall, climb, held and pat are left to finish.
 const REACT_INTERRUPTIBLE = new Set(['idle', 'walk', 'jump', 'soccer', 'surf', 'music', 'code', 'coffee']);
+
+// Seated coding, frame-accurate to the real sprite (see states.css): hard-cut poses in this order. A stationary tick is
+// 150ms and burns 5 frames, so frames = 5 per tick.
+const CODE_NEXT = {
+  prep: 'raise', raise: 'hold', hold: 'swing', swing: 'land', land: 'ears', ears: 'sit', sit: 'typing',
+  typing: 'up', up: 'carry', carry: 'away', away: 'relax',
+};
+const CODE_PHASE_FRAMES = {
+  prep: 15, raise: 5, hold: 10, swing: 5, land: 5, ears: 5, sit: 5, up: 5, carry: 5, away: 10, relax: 5,
+};
+const codePhaseFrames = (phase) => (phase === 'typing' ? 250 + Math.random() * 250 : CODE_PHASE_FRAMES[phase]);
 
 const DODGE_MARGIN = 8;
 const DODGE_DIST = 260;
@@ -198,6 +209,13 @@ function reactToActivity() {
   startTrick(mirror);
 }
 
+// Dev menu helper: play a trick on demand instead of waiting for the random pick.
+function devPlayTrick(trick) {
+  if (dragging || patting) return;
+  fleeing = false;
+  startTrick(trick);
+}
+
 function nextAction() {
   // User is away from the machine: stay put instead of wandering (also saves the 30ms tick work).
   if (activity === 'away') {
@@ -245,8 +263,8 @@ function startTrick(trick) {
   switch (trick) {
     case 'code':
       state = 'code';
-      codePhase = 'typing';
-      frames = 250 + Math.random() * 250;
+      codePhase = 'prep';
+      frames = codePhaseFrames('prep');
       break;
     case 'coffee':
       state = 'coffee';
@@ -367,9 +385,9 @@ function tick() {
     frames -= scheduledDelay / FAST_MS;
     if (frames <= 0) {
       if (state === 'idle') nextAction();
-      else if (state === 'code' && codePhase === 'typing') {
-        codePhase = 'closing';
-        frames = 12;
+      else if (state === 'code' && CODE_NEXT[codePhase]) {
+        codePhase = CODE_NEXT[codePhase];
+        frames = codePhaseFrames(codePhase);
       } else if (state === 'coffee' && coffeePhase === 'lift') {
         coffeePhase = 'sip';
         frames = 200 + Math.random() * 150;
@@ -517,7 +535,14 @@ function buildTrayMenu() {
           buildTrayMenu();
         },
       },
-      ...(app.isPackaged ? [] : [{ label: '[dev] Test: nói ngay', click: () => showCareMessage(awareness.previewLine()) }]),
+      ...(app.isPackaged ? [] : [
+        { label: '[dev] Test: nói ngay', click: () => showCareMessage(awareness.previewLine()) },
+        { label: '[dev] Replay: gõ code', click: () => devPlayTrick('code') },
+        { label: '[dev] Replay: nghe nhạc', click: () => devPlayTrick('music') },
+        { label: '[dev] Replay: lướt ván', click: () => devPlayTrick('surf') },
+        { label: '[dev] Replay: uống cà phê', click: () => devPlayTrick('coffee') },
+        { label: '[dev] Replay: đá bóng', click: () => devPlayTrick('soccer') },
+      ]),
       { label: 'Đổi pet...', click: () => createModelPickerWindow(false, true) },
       { label: 'Cài đặt...', click: () => createSettingsWindow(false) },
       { type: 'separator' },
