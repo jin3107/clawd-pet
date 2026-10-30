@@ -57,7 +57,12 @@ body.held #creature {
 }
 
 #board,
+#sea-back,
+#sea-front,
 #laptop,
+#torso-shade,
+#sit-legs,
+#hang-legs,
 #hearts,
 #eyes-h,
 #eyes-x,
@@ -73,6 +78,9 @@ body.held #creature {
 }
 
 .eye {
+  /* Scale around the eye itself. Without fill-box the origin is the centre of the whole SVG viewBox, so a blink
+     (scaleY) dragged the eyes down toward the legs instead of squashing them in place. */
+  transform-box: fill-box;
   transform-origin: center;
   translate: 0 0;
   scale: 1 1;
@@ -80,7 +88,7 @@ body.held #creature {
 }
 
 .eye.blinking {
-  animation: blink 0.25s ease-in-out 1;
+  animation: blink 0.25s steps(1) 1;
 }
 
 .tail {

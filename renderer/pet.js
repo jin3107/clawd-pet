@@ -3,6 +3,14 @@ let flipGroup = null;
 let headZone = null;
 let held = false;
 
+const CODE_PHASES = ['prep', 'raise', 'hold', 'swing', 'land', 'ears', 'sit', 'typing', 'up', 'carry', 'away', 'relax'];
+// Group classes for states.css (see the seated-coding comment there).
+const CODE_GROUPS = {
+  'cs-seated': new Set(['sit', 'typing', 'up']),
+  'cs-shade': new Set(['ears', 'sit', 'typing', 'up', 'carry']),
+  'cs-look': new Set(['sit', 'typing', 'up', 'carry']),
+  'cs-open': new Set(['land', 'ears', 'sit', 'typing', 'up']),
+};
 const STATES = ['walk', 'idle', 'surf', 'climb', 'code', 'jump', 'music', 'soccer', 'held', 'fall', 'pat', 'think', 'coffee', 'butterfly'];
 
 function scheduleBlink() {
@@ -40,7 +48,10 @@ async function init() {
       state.startsWith('fall')  ? 'fall'  : state;
     STATES.forEach((s) => document.body.classList.toggle(s, s === base));
     document.body.classList.toggle('hang',    state === 'climb-pause');
-    document.body.classList.toggle('closing', state === 'code-closing');
+    // One class per seated-coding phase (cp-draw … cp-closing); states.css builds the sequence from them.
+    CODE_PHASES.forEach((p) => document.body.classList.toggle(`cp-${p}`, state === `code-${p}`));
+    const codePhase = state.startsWith('code-') ? state.slice(5) : '';
+    Object.entries(CODE_GROUPS).forEach(([cls, phases]) => document.body.classList.toggle(cls, phases.has(codePhase)));
     document.body.classList.toggle('sipping', state === 'coffee-sip');
     document.body.classList.toggle('chute',   state.startsWith('fall') && state.includes('chute'));
     document.body.classList.toggle('scared',  state.startsWith('fall') && state.includes('scared'));

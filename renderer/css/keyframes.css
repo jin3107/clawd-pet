@@ -25,7 +25,8 @@
 
 @keyframes blink {
   0%, 100% { transform: scaleY(1); }
-  50%      { transform: scaleY(0.15); }
+  30%      { transform: scaleY(0.25); }
+  70%      { transform: scaleY(1); }
 }
 
 @keyframes tail-wag {
@@ -33,14 +34,15 @@
   50%      { transform: rotate(10deg); }
 }
 
+/* the pet rides the swell: up 2 units, down again, in whole steps (no rotation, so edges stay crisp) */
 @keyframes surf-bob {
-  0%, 100% { transform: rotate(-1deg) translateY(0); }
-  50%      { transform: rotate(1deg) translateY(-3px); }
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-2px); }
 }
 
 @keyframes surf-board {
-  0%, 100% { transform: rotate(-2deg) translateY(0); }
-  50%      { transform: rotate(2deg) translateY(-2px); }
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-1px); }
 }
 
 @keyframes climb-wiggle {
@@ -60,18 +62,18 @@
 }
 
 @keyframes sit-breathe {
-  0%, 100% { transform: translateY(6px) scaleY(1); }
-  50%      { transform: translateY(6px) scaleY(1.02); }
+  0%, 100% { transform: translateY(4px) scaleY(1); }
+  50%      { transform: translateY(4px) scaleY(1.02); }
 }
 
 @keyframes type-arm-l {
-  0%, 100% { transform: translate(68px, 18px); }
-  50%      { transform: translate(68px, 21px); }
+  0%   { transform: translateY(3px); }
+  50%  { transform: translateY(0); }
 }
 
 @keyframes type-arm-r {
-  0%, 100% { transform: translate(8px, 21px); }
-  50%      { transform: translate(8px, 18px); }
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(3px); }
 }
 
 @keyframes chute-sway {
@@ -79,14 +81,24 @@
   50%      { transform: rotate(3deg); }
 }
 
+/* coffee: cup offsets are relative to the cup's resting spot (x 74..86 + handle to 90, y 7..17) */
 @keyframes cup-lift {
-  0%   { transform: translate(0, 14px); }
-  100% { transform: translate(-2px, -8px); }
+  0%   { translate: -1px 28px; }
+  33%  { translate: -1px 17px; }
+  66%  { translate: -1px 9px; }
+  100% { translate: -1px 5px; }
 }
 
 @keyframes cup-sip {
-  0%   { transform: translate(-2px, -8px); }
-  100% { transform: translate(-2px, -11px); }
+  0% { translate: -1px 5px; }
+  24% { translate: -17px -2px; }
+  30% { translate: -34px 6px; }
+  56% { translate: -17px -2px; }
+  62% { translate: -1px 5px; }
+  72% { translate: -17px -2px; }
+  78% { translate: -34px 6px; }
+  86% { translate: -17px -2px; }
+  92% { translate: -1px 5px; }
 }
 
 @keyframes steam-rise {
@@ -125,28 +137,10 @@
   50%      { transform: scaleY(1.06) translateY(-1px); }
 }
 
-@keyframes head-bang {
-  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
-  50%      { transform: translateY(-2px) rotate(1.5deg); }
-}
-
 @keyframes note-float {
   0%   { transform: translateY(6px); opacity: 0; }
   30%  { opacity: 1; }
   100% { transform: translateY(-8px); opacity: 0; }
-}
-
-@keyframes ball-arc {
-  0%, 100% { transform: translate(0, 0); }
-  25%      { transform: translate(-35px, -30px); }
-  50%      { transform: translate(-71px, 0); }
-  75%      { transform: translate(-35px, -30px); }
-}
-
-@keyframes soccer-lean {
-  0%, 100% { transform: rotate(-6deg) translateY(0); }
-  25%, 75% { transform: rotate(0deg) translateY(-3px); }
-  50%      { transform: rotate(6deg) translateY(0); }
 }
 
 @keyframes heart-float {
@@ -216,4 +210,156 @@
   70%      { transform: translateY(-3px) rotate(-25deg); }
   80%      { transform: translateY(0) rotate(10deg); }
   100%     { transform: translateY(0) rotate(0deg); }
+}
+
+/* the arm keeps its normal length (15) the whole way: it carries the cup in an arc to the mouth. It is a shade darker
+   while it lies over the torso so it reads as an arm in front of the body (same colour would melt into it) */
+@keyframes arm-sip {
+  0% { x: 70px; y: 22px; width: 15px; height: 9px; fill: #D87656; }
+  24% { x: 69px; y: 12px; width: 15px; height: 9px; fill: #C96E4F; }
+  30% { x: 56px; y: 17px; width: 15px; height: 9px; fill: #C96E4F; }
+  56% { x: 69px; y: 12px; width: 15px; height: 9px; fill: #C96E4F; }
+  62% { x: 70px; y: 22px; width: 15px; height: 9px; fill: #D87656; }
+  72% { x: 69px; y: 12px; width: 15px; height: 9px; fill: #C96E4F; }
+  78% { x: 56px; y: 17px; width: 15px; height: 9px; fill: #C96E4F; }
+  86% { x: 69px; y: 12px; width: 15px; height: 9px; fill: #C96E4F; }
+  92% { x: 70px; y: 22px; width: 15px; height: 9px; fill: #D87656; }
+}
+
+/* ── music: the pet nods UP from standing height; the desk (inside the bobbing group) gets the exact opposite so it stays
+   put; the hands go all the way down onto the decks ── */
+@keyframes dj-bob {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-3px); }
+}
+
+@keyframes dj-table-hold {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(3px); }
+}
+
+@keyframes dj-arm-l {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(12px); }
+}
+
+@keyframes dj-arm-r {
+  0%   { transform: translateY(12px); }
+  50%  { transform: translateY(0); }
+}
+
+/* ── seated coding: reveals an element at the end of its delay (visibility is animatable) ── */
+@keyframes reveal {
+  to { visibility: visible; }
+}
+
+/* ── held: only the feet swing; the upper part of each leg stays under the torso ── */
+@keyframes hang-foot-a {
+  0%   { translate: 3px 0; }
+  50%  { translate: -3px 0; }
+}
+
+@keyframes hang-foot-b {
+  0%   { translate: -3px 0; }
+  50%  { translate: 3px 0; }
+}
+
+/* ── parachute: staged opening (scale is stepped so the canopy pops open like pixel art), then a small side bob ── */
+@keyframes chute-open {
+  0%   { scale: 0 0; }
+  20%  { scale: 0.25 0.2; }
+  40%  { scale: 0.55 0.5; }
+  60%  { scale: 0.85 0.8; }
+  80%  { scale: 1.08 1.1; }
+  100% { scale: 1 1; }
+}
+
+@keyframes chute-bob {
+  0%   { translate: -2px 0; }
+  50%  { translate: 2px 0; }
+}
+
+/* ── surf: balance arms out of phase; the sea scrolls left (the pet travels right), each layer moving exactly one tile
+   period so the loop is seamless ── */
+@keyframes surf-arm-l {
+  0%   { transform: translateY(-4px); }
+  50%  { transform: translateY(2px); }
+}
+
+@keyframes surf-arm-r {
+  0%   { transform: translateY(2px); }
+  50%  { transform: translateY(-4px); }
+}
+
+@keyframes wave-back {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-30px); }
+}
+
+@keyframes wave-front {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-20px); }
+}
+
+@keyframes spray {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(-4px, -3px); }
+}
+
+/* ── juggling (the "soccer" trick) ── ball centre positions: right hand (80,10) -> over the head (apex y=-26) -> left
+   hand (0,10) and back */
+@keyframes juggle-ball {
+  0%   { translate: 80px 0px; }
+  8%   { translate: 69px -10px; }
+  16%  { translate: 55px -20px; }
+  24%  { translate: 40px -26px; }
+  32%  { translate: 25px -20px; }
+  40%  { translate: 11px -8px; }
+  48%  { translate: 0px 0px; }
+  58%  { translate: 11px -8px; }
+  66%  { translate: 25px -20px; }
+  74%  { translate: 40px -26px; }
+  82%  { translate: 55px -20px; }
+  90%  { translate: 69px -8px; }
+  96%  { translate: 80px 0px; }
+}
+
+@keyframes juggle-arm-r {
+  0%   { translate: 0 -3px; }
+  6%   { translate: 0 -9px; }
+  12%  { translate: 0 0; }
+  84%  { translate: 0 -5px; }
+  92%  { translate: 0 2px; }
+  96%  { translate: 0 -3px; }
+}
+
+@keyframes juggle-arm-l {
+  0%   { translate: 0 0; }
+  40%  { translate: 0 -5px; }
+  48%  { translate: 0 2px; }
+  52%  { translate: 0 -3px; }
+  56%  { translate: 0 -9px; }
+  62%  { translate: 0 0; }
+}
+
+/* a small hop on each toss, in whole steps */
+@keyframes juggle-body {
+  0%   { translate: 0 0; }
+  4%   { translate: 0 -2px; }
+  10%  { translate: 0 0; }
+  54%  { translate: 0 -2px; }
+  60%  { translate: 0 0; }
+}
+
+/* eyes follow the ball: right side, up over the head, left side, and back */
+@keyframes juggle-eyes {
+  0%   { translate: 4px -1px; }
+  16%  { translate: 2px -3px; }
+  24%  { translate: 0 -3px; }
+  32%  { translate: -2px -3px; }
+  44%  { translate: -4px -1px; }
+  58%  { translate: -2px -3px; }
+  74%  { translate: 0 -3px; }
+  82%  { translate: 2px -3px; }
+  92%  { translate: 4px -1px; }
 }
