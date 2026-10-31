@@ -2,6 +2,7 @@ const { app, BrowserWindow, screen, Tray, Menu, ipcMain } = require('electron');
 const path = require('path');
 const { DEFAULT_GREETINGS, loadConfig, saveConfig, greetingsFor } = require('./config');
 const awareness = require('./awareness');
+const brain = require('./brain');
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -224,6 +225,19 @@ function nextAction() {
     return;
   }
 
+  // Mini brain: apply the answer that arrived since the last decision point, then ask for the next one. While the brain
+  // is cooling down, waiting on the API, backing off after an error or off, nothing is taken and the state machine below
+  // runs as usual. This sits before the AFK branch because a typing user rarely moves the mouse, so AFK is the common case.
+  const thought = brain.take();
+  brain.request({
+    petName: petConfig?.petName || 'Pixel Pet',
+    model: petConfig?.petModel || 'clawd',
+    hour: new Date().getHours(),
+    activity,
+    state,
+  });
+  if (thought && applyBrainDecision(thought)) return;
+
   const afk = Date.now() - lastCursorMove > AFK_MS;
   if (afk) {
     if (Math.random() < 0.25) {
@@ -257,6 +271,23 @@ function nextAction() {
       ? ['jump', 'climb', 'think', 'butterfly']
       : ['jump', 'climb', 'think'];
   startTrick(tricks[Math.floor(Math.random() * tricks.length)]);
+}
+
+// Returns false when the decision cannot be applied (the caller then falls back to the state machine).
+function applyBrainDecision({ state: next, say }) {
+  console.log(`[brain] apply state=${next} say=${say ? JSON.stringify(say) : 'none'}`);
+  if (say && showCareMessage(say)) return true;
+  if (!brain.allowedStates(petConfig?.petModel || 'clawd').includes(next)) return false;
+  fleeing = false;
+  if (next === 'idle') {
+    startIdle();
+  } else if (next === 'walk') {
+    state = 'walk';
+    targetX = pickTarget(40);
+  } else {
+    startTrick(next);
+  }
+  return true;
 }
 
 function startTrick(trick) {
@@ -506,6 +537,10 @@ function setAwareness(on) {
   }
 }
 
+function hasBrainKey() {
+  return brain.isConfigured();
+}
+
 function buildTrayMenu() {
   const openAtLogin = app.getLoginItemSettings().openAtLogin;
   tray.setContextMenu(
@@ -535,6 +570,18 @@ function buildTrayMenu() {
           buildTrayMenu();
         },
       },
+      {
+        label: hasBrainKey() ? 'Mini brain (LLM)' : 'Mini brain (LLM) - thiếu API key',
+        type: 'checkbox',
+        checked: !!petConfig?.brain && hasBrainKey(),
+        enabled: hasBrainKey(),
+        click: (item) => {
+          petConfig = { ...(petConfig || loadConfig()), brain: item.checked };
+          saveConfig(petConfig);
+          applyBrain(petConfig);
+          buildTrayMenu();
+        },
+      },
       ...(app.isPackaged ? [] : [
         { label: '[dev] Test: nói ngay', click: () => showCareMessage(awareness.previewLine()) },
         { label: '[dev] Replay: gõ code', click: () => devPlayTrick('code') },
@@ -551,8 +598,19 @@ function buildTrayMenu() {
   );
 }
 
+function applyBrain(config) {
+  brain.configure({
+    enabled: !!config.brain,
+    apiKey: process.env.BRAIN_API_KEY || process.env.XAI_API_KEY || config.xaiApiKey || '',
+    model: config.brainModel || brain.DEFAULT_MODEL,
+    endpoint: config.brainEndpoint || brain.DEFAULT_ENDPOINT,
+    reasoningEffort: config.brainReasoningEffort || '',
+  });
+}
+
 function applyConfig(config) {
   petConfig = config;
+  applyBrain(config);
   CARE_MESSAGES = greetingsFor(config);
   CARE_MIN_MS = config.intervalMinMin * 60 * 1000;
   CARE_MAX_MS = config.intervalMaxMin * 60 * 1000;
