@@ -21,6 +21,11 @@ const DEFAULT_CONFIG = {
   intervalMinMin: 60,
   intervalMaxMin: 75,
   awareness: false, // opt-in: watch the foreground app (never screenshots) so the pet reacts to what the user is doing
+  brain: false, // opt-in: let an LLM pick the pet's next action (any OpenAI-compatible endpoint; key not needed for localhost)
+  xaiApiKey: '', // also read from env BRAIN_API_KEY / XAI_API_KEY
+  brainModel: 'grok-3-mini',
+  brainEndpoint: 'https://api.x.ai/v1/chat/completions',
+  brainReasoningEffort: '', // 'low' | 'medium' | 'high' for reasoning models (gpt-oss); empty = omit the field
 };
 
 function configPath() {
