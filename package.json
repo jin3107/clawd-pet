@@ -1,12 +1,12 @@
 {
-  "name": "clawd-pet",
+  "name": "pixel-pet",
   "version": "1.7.0",
   "description": "A tiny pixel-art crab that walks the taskbar on your Windows desktop",
   "main": "main.js",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jin3107/clawd-pet.git"
+    "url": "https://github.com/jin3107/pixel-pet.git"
   },
   "scripts": {
     "start": "electron .",
@@ -20,7 +20,7 @@
     "electronLanguages": ["en-US"],
     "compression": "maximum",
     "appId": "com.rainy.pixelpet",
-    "productName": "Clawd Pet",
+    "productName": "Pixel Pet",
     "files": [
       "main.js",
       "config.js",
@@ -42,8 +42,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Clawd Pet",
-      "artifactName": "clawd-pet.exe",
+      "shortcutName": "Pixel Pet",
+      "artifactName": "pixel-pet.exe",
       "uninstallDisplayName": "${productName} ${version}"
     },
     "directories": {
