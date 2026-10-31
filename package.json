@@ -24,6 +24,7 @@
     "files": [
       "main.js",
       "config.js",
+      "brain.js",
       "awareness/**",
       "preload.js",
       "bubblePreload.js",
