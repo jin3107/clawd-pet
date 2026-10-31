@@ -79,7 +79,8 @@ function buildPrompt(ctx, states, sayAllowed) {
     (sayAllowed
       ? '"say" is required this turn: one short line in Vietnamese, at most 10 words, in the voice of a dry, affectionate little pet. ' +
         'Plain text only, no emoji. Only mention what the user is doing if "User is currently" names a real activity; ' +
-        'if it says other, stay generic (time of day, a small observation about yourself). Never guess apps or websites, never give orders.'
+        'if it says other, stay generic (time of day, a small observation about yourself). Never guess apps or websites, ' +
+        'never invent objects, places or events, never give orders.'
       : '"say" must be null.');
   const user =
     `Time ${ctx.hour}h. User is currently: ${ctx.activity}. Pet is ${ctx.state}. Recent choices: ${ctx.recent.join(', ') || 'none'}.`;
@@ -153,6 +154,7 @@ function request(ctx) {
   post(settings, buildPrompt({ ...ctx, recent }, states, sayAllowed), ac.signal)
     .then(readJson)
     .then((json) => {
+      if (abort !== ac) return; // reset() ran meanwhile (brain turned off): drop the stale answer
       const d = parse(json?.choices?.[0]?.message?.content, states, sayAllowed);
       if (!d) throw new Error(`bad reply: ${JSON.stringify(json?.choices?.[0]?.message?.content)}`);
       console.log(`[brain] decided state=${d.state} say=${d.say ? JSON.stringify(d.say) : 'none'}`);
@@ -161,14 +163,19 @@ function request(ctx) {
       if (d.say) lastSayAt = Date.now();
     })
     .catch((err) => {
+      // An aborted request after reset() is not a failure, so it must not start a backoff.
+      if (abort !== ac) return;
       // Out of credit, offline, 429, bad key, timeout: back off and let the state machine carry on.
       console.warn(`[brain] request failed: ${err.message}; backing off ${ERROR_BACKOFF_MS / 1000}s`);
       busyUntil = Date.now() + ERROR_BACKOFF_MS;
     })
     .finally(() => {
       clearTimeout(timer);
-      if (abort === ac) abort = null;
-      pending = false;
+      // Only the current request may clear the flags; after reset() a newer request could already own them.
+      if (abort === ac) {
+        abort = null;
+        pending = false;
+      }
     });
 }
 
