@@ -653,6 +653,7 @@ function createModelPickerWindow(isFirstRun, switching = false) {
     y: Math.round(wa.y + wa.height / 2 - MODEL_PICKER_H / 2),
     resizable: false,
     backgroundColor: uiBackground(),
+    icon: path.join(__dirname, 'renderer', 'app-icon.png'),
     title: 'Pixel Pet - Chọn pet',
     autoHideMenuBar: true,
     webPreferences: {
@@ -736,6 +737,7 @@ function createSettingsWindow(isFirstRun) {
     y: Math.round(wa.y + wa.height / 2 - SETTINGS_H / 2),
     resizable: false,
     backgroundColor: uiBackground(),
+    icon: path.join(__dirname, 'renderer', 'app-icon.png'),
     title: 'Pixel Pet - Cài đặt',
     autoHideMenuBar: true,
     webPreferences: {

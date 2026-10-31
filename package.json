@@ -14,11 +14,15 @@
   },
   "devDependencies": {
     "electron": "^31.0.0",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^24.13.3",
+    "rcedit": "^5.0.2"
   },
   "build": {
-    "electronLanguages": ["en-US"],
+    "electronLanguages": [
+      "en-US"
+    ],
     "compression": "maximum",
+    "afterPack": "scripts/afterPack.js",
     "appId": "com.rainy.pixelpet",
     "productName": "Pixel Pet",
     "files": [
@@ -34,7 +38,7 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "renderer/app-icon.png",
+      "icon": "build/icon.ico",
       "signAndEditExecutable": false
     },
     "nsis": {
