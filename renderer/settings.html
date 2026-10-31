@@ -2,57 +2,41 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Clawd Pet - Cài đặt</title>
+<title>Pixel Pet - Cài đặt</title>
+<link rel="stylesheet" href="css/ui.css">
 <style>
-  html, body {
-    margin: 0;
-    background: #F2F2F2;
-    color: #2B2B2B;
-    font-family: "Segoe UI", sans-serif;
-    font-size: 13px;
-  }
-
   #wrap {
-    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 16px 20px;
     box-sizing: border-box;
   }
 
-  h1 {
-    font-size: 15px;
-    margin: 0 0 14px;
+  /* Only the tab content scrolls; the tab bar and the Save row stay put. */
+  #panels {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 6px;
+  }
+
+  .panel[hidden] {
+    display: none;
+  }
+
+  section {
+    margin-bottom: 20px;
   }
 
   .field {
-    margin-bottom: 14px;
-  }
-
-  label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-
-  input[type="text"],
-  textarea {
-    width: 100%;
-    box-sizing: border-box;
-    border: 2px solid #2B2B2B;
-    background: #FFFFFF;
-    color: #2B2B2B;
-    font-family: inherit;
-    font-size: 13px;
-    padding: 6px 8px;
-  }
-
-  textarea {
-    resize: vertical;
-    min-height: 70px;
+    margin-bottom: 12px;
   }
 
   .check-row {
     display: flex;
     align-items: flex-start;
-    gap: 6px;
+    gap: 8px;
     margin-bottom: 6px;
   }
 
@@ -62,10 +46,11 @@
   }
 
   #greetingList {
-    max-height: 140px;
+    max-height: 120px;
     overflow-y: auto;
-    border: 2px solid #2B2B2B;
-    background: #FFFFFF;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
     padding: 8px;
     margin-bottom: 8px;
   }
@@ -80,56 +65,150 @@
     width: 70px;
   }
 
-  #error {
-    color: #B00020;
-    font-size: 12px;
-    min-height: 16px;
+  #brainFields.off {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  details {
+    margin-bottom: 12px;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
     margin-bottom: 8px;
   }
 
-  #save {
-    border: 2px solid #2B2B2B;
-    background: #2B2B2B;
-    color: #F2F2F2;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 8px 16px;
-    cursor: pointer;
+  .test-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
-  #save:hover {
-    background: #444;
+  #testResult {
+    font-size: 12px;
+    word-break: break-word;
+  }
+
+  #testResult.ok { color: var(--ok); }
+  #testResult.fail { color: var(--danger); }
+
+  .footer {
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  #error {
+    color: var(--danger);
+    font-size: 12px;
+    min-height: 16px;
+    margin-bottom: 8px;
   }
 </style>
 </head>
 <body>
   <div id="wrap">
-    <h1>Chào bạn! Đặt tên và tuỳ chỉnh cho pet của bạn nhé</h1>
+    <h1 id="title">Cài đặt</h1>
 
-    <div class="field">
-      <label for="petName">Tên pet</label>
-      <input type="text" id="petName" maxlength="30" placeholder="Pixel Pet">
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab active" data-tab="general" role="tab">Chung</button>
+      <button type="button" class="tab" data-tab="brain" role="tab">Mini brain</button>
     </div>
 
-    <div class="field">
-      <label>Câu hỏi thăm (chọn câu muốn dùng)</label>
-      <div id="greetingList"></div>
-      <label for="customGreetings">Hoặc tự nhập thêm (mỗi dòng một câu)</label>
-      <textarea id="customGreetings" placeholder="Câu hỏi thăm của riêng bạn..."></textarea>
-    </div>
+    <div id="panels">
+      <div class="panel" id="panel-general">
+        <section>
+          <h2>Pet</h2>
+          <div class="field">
+            <label for="petName">Tên pet</label>
+            <input type="text" id="petName" maxlength="30" placeholder="Pixel Pet">
+          </div>
+        </section>
 
-    <div class="field">
-      <label>Khoảng cách giữa các lần hỏi thăm (phút)</label>
-      <div class="interval-row">
-        <input type="text" id="intervalMin" inputmode="numeric">
-        <span>đến</span>
-        <input type="text" id="intervalMax" inputmode="numeric">
+        <section>
+          <h2>Hỏi thăm</h2>
+          <div class="field">
+            <label>Chọn câu muốn dùng</label>
+            <div id="greetingList"></div>
+            <label for="customGreetings">Hoặc tự nhập thêm (mỗi dòng một câu)</label>
+            <textarea id="customGreetings" placeholder="Câu hỏi thăm của riêng bạn..."></textarea>
+          </div>
+          <div class="field">
+            <label>Khoảng cách giữa các lần hỏi thăm (phút)</label>
+            <div class="interval-row">
+              <input type="text" id="intervalMin" inputmode="numeric">
+              <span>đến</span>
+              <input type="text" id="intervalMax" inputmode="numeric">
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="panel" id="panel-brain" hidden>
+        <section>
+          <h2>Mini brain (tuỳ chọn)</h2>
+          <p class="hint" style="margin: 0 0 10px">
+            Một mô hình AI chọn hành động tiếp theo của pet và thỉnh thoảng nói vài câu. Chỉ gửi giờ hiện tại, loại hoạt động
+            (ví dụ đang code) và trạng thái của pet; không gửi tên app hay tiêu đề cửa sổ.
+          </p>
+          <div class="check-row">
+            <input type="checkbox" id="brainOn">
+            <label for="brainOn">Bật mini brain</label>
+          </div>
+
+          <div id="brainFields" class="off">
+            <div class="field">
+              <label for="provider">Nhà cung cấp</label>
+              <select id="provider"></select>
+            </div>
+
+            <div class="field">
+              <label for="brainModel">Model</label>
+              <input type="text" id="brainModel" spellcheck="false">
+              <p class="hint">Tên model có thể đã đổi. Nếu thử kết nối báo lỗi 404, kiểm tra lại trên trang của nhà cung cấp.</p>
+            </div>
+
+            <div class="field" id="keyField">
+              <label for="brainKey">API key</label>
+              <input type="password" id="brainKey" autocomplete="off" spellcheck="false">
+              <p class="hint" id="keyHint"></p>
+              <div class="check-row" id="clearKeyRow" style="margin-top: 6px">
+                <input type="checkbox" id="clearKey">
+                <label for="clearKey">Xoá key đã lưu</label>
+              </div>
+            </div>
+
+            <details>
+              <summary>Nâng cao</summary>
+              <div class="field">
+                <label for="brainEndpoint">Endpoint (OpenAI-compatible)</label>
+                <input type="text" id="brainEndpoint" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="brainEffort">Mức suy luận (chỉ cho model dạng reasoning, ví dụ gpt-oss)</label>
+                <select id="brainEffort">
+                  <option value="">Không gửi</option>
+                  <option value="low">low</option>
+                  <option value="medium">medium</option>
+                  <option value="high">high</option>
+                </select>
+              </div>
+            </details>
+
+            <div class="test-row">
+              <button type="button" id="test" class="btn">Thử kết nối</button>
+              <span id="testResult"></span>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
 
-    <div id="error"></div>
-    <button id="save">Lưu và bắt đầu</button>
+    <div class="footer">
+      <div id="error"></div>
+      <button id="save" class="btn primary">Lưu</button>
+    </div>
   </div>
   <script src="settings.js"></script>
 </body>

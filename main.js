@@ -1,6 +1,8 @@
-const { app, BrowserWindow, screen, Tray, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, screen, Tray, Menu, ipcMain, dialog, nativeTheme } = require('electron');
 const path = require('path');
-const { DEFAULT_GREETINGS, loadConfig, saveConfig, greetingsFor } = require('./config');
+const {
+  DEFAULT_GREETINGS, loadConfig, saveConfig, greetingsFor, storeBrainKey, brainKeyFor, migrateLegacyConfig,
+} = require('./config');
 const awareness = require('./awareness');
 const brain = require('./brain');
 
@@ -8,6 +10,8 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
   process.exit(0);
 }
+
+migrateLegacyConfig(path.join(app.getPath('appData'), 'clawd-pet'), app.getPath('userData'));
 
 app.disableHardwareAcceleration();
 // Memory: fold the GPU process into main, share one renderer between windows, and cap V8's heap (the pet is tiny).
@@ -31,10 +35,10 @@ let CARE_MESSAGES = [];
 let CARE_MIN_MS = 60 * 60 * 1000;
 let CARE_MAX_MS = 75 * 60 * 1000;
 const LOGIN_START_DELAY_MS = 45 * 1000;
-const SETTINGS_W = 460;
-const SETTINGS_H = 460;
-const MODEL_PICKER_W = 420;
-const MODEL_PICKER_H = 280;
+const SETTINGS_W = 560;
+const SETTINGS_H = 620;
+const MODEL_PICKER_W = 500;
+const MODEL_PICKER_H = 490;
 const BUBBLE_W = 220;
 const HEAD_ANCHOR_Y = 18;
 
@@ -97,6 +101,11 @@ const DODGEABLE = new Set(['idle', 'code', 'jump', 'music', 'soccer', 'think', '
 
 function workArea() {
   return screen.getPrimaryDisplay().workArea;
+}
+
+// Matches --bg in ui.css so the settings/picker windows do not flash white before the page paints in dark mode.
+function uiBackground() {
+  return nativeTheme.shouldUseDarkColors ? '#202020' : '#F3F3F3';
 }
 
 function baseY() {
@@ -543,22 +552,26 @@ function hasBrainKey() {
 
 function buildTrayMenu() {
   const openAtLogin = app.getLoginItemSettings().openAtLogin;
-  tray.setContextMenu(
-    Menu.buildFromTemplate([
-      {
-        label: `Version ${app.getVersion()}`,
-        enabled: false,
-      },
-      { type: 'separator' },
-      {
-        label: 'Chạy cùng Windows',
+  // Without a key the toggle would do nothing, so it opens the settings window where the key is entered.
+  const brainItem = hasBrainKey()
+    ? {
+        label: 'Mini brain (LLM)',
         type: 'checkbox',
-        checked: openAtLogin,
+        checked: !!petConfig?.brain,
         click: (item) => {
-          app.setLoginItemSettings({ openAtLogin: item.checked });
+          petConfig = { ...(petConfig || loadConfig()), brain: item.checked };
+          saveConfig(petConfig);
+          applyBrain(petConfig);
           buildTrayMenu();
         },
-      },
+      }
+    : { label: 'Mini brain (LLM): chưa thiết lập...', click: () => createSettingsWindow(false) };
+
+  tray.setContextMenu(
+    Menu.buildFromTemplate([
+      { label: 'Cài đặt...', click: () => createSettingsWindow(false) },
+      { label: 'Đổi pet...', click: () => createModelPickerWindow(false, true) },
+      { type: 'separator' },
       {
         label: 'Pet quan sát app đang dùng',
         type: 'checkbox',
@@ -570,29 +583,32 @@ function buildTrayMenu() {
           buildTrayMenu();
         },
       },
+      brainItem,
       {
-        label: hasBrainKey() ? 'Mini brain (LLM)' : 'Mini brain (LLM) - thiếu API key',
+        label: 'Chạy cùng Windows',
         type: 'checkbox',
-        checked: !!petConfig?.brain && hasBrainKey(),
-        enabled: hasBrainKey(),
+        checked: openAtLogin,
         click: (item) => {
-          petConfig = { ...(petConfig || loadConfig()), brain: item.checked };
-          saveConfig(petConfig);
-          applyBrain(petConfig);
+          app.setLoginItemSettings({ openAtLogin: item.checked });
           buildTrayMenu();
         },
       },
       ...(app.isPackaged ? [] : [
-        { label: '[dev] Test: nói ngay', click: () => showCareMessage(awareness.previewLine()) },
-        { label: '[dev] Replay: gõ code', click: () => devPlayTrick('code') },
-        { label: '[dev] Replay: nghe nhạc', click: () => devPlayTrick('music') },
-        { label: '[dev] Replay: lướt ván', click: () => devPlayTrick('surf') },
-        { label: '[dev] Replay: uống cà phê', click: () => devPlayTrick('coffee') },
-        { label: '[dev] Replay: đá bóng', click: () => devPlayTrick('soccer') },
+        { type: 'separator' },
+        {
+          label: '[dev] Thử nghiệm',
+          submenu: [
+            { label: 'Nói ngay', click: () => showCareMessage(awareness.previewLine()) },
+            { label: 'Replay: gõ code', click: () => devPlayTrick('code') },
+            { label: 'Replay: nghe nhạc', click: () => devPlayTrick('music') },
+            { label: 'Replay: lướt ván', click: () => devPlayTrick('surf') },
+            { label: 'Replay: uống cà phê', click: () => devPlayTrick('coffee') },
+            { label: 'Replay: đá bóng', click: () => devPlayTrick('soccer') },
+          ],
+        },
       ]),
-      { label: 'Đổi pet...', click: () => createModelPickerWindow(false, true) },
-      { label: 'Cài đặt...', click: () => createSettingsWindow(false) },
       { type: 'separator' },
+      { label: `Version ${app.getVersion()}`, enabled: false },
       { label: 'Exit', click: () => app.quit() },
     ])
   );
@@ -601,7 +617,7 @@ function buildTrayMenu() {
 function applyBrain(config) {
   brain.configure({
     enabled: !!config.brain,
-    apiKey: process.env.BRAIN_API_KEY || process.env.XAI_API_KEY || config.xaiApiKey || '',
+    apiKey: brainKeyFor(config),
     model: config.brainModel || brain.DEFAULT_MODEL,
     endpoint: config.brainEndpoint || brain.DEFAULT_ENDPOINT,
     reasoningEffort: config.brainReasoningEffort || '',
@@ -636,7 +652,8 @@ function createModelPickerWindow(isFirstRun, switching = false) {
     x: Math.round(wa.x + wa.width / 2 - MODEL_PICKER_W / 2),
     y: Math.round(wa.y + wa.height / 2 - MODEL_PICKER_H / 2),
     resizable: false,
-    title: 'Clawd Pet - Chọn pet',
+    backgroundColor: uiBackground(),
+    title: 'Pixel Pet - Chọn pet',
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'modelPickerPreload.js'),
@@ -677,6 +694,30 @@ function createModelPickerWindow(isFirstRun, switching = false) {
 }
 
 let settingsWin = null;
+let settingsFirstRun = false;
+
+function sameHost(a, b) {
+  try {
+    return new URL(a).host === new URL(b).host;
+  } catch {
+    return false;
+  }
+}
+
+// The renderer sends the key as plain form data; it is encrypted here and never written to the config as text. A stored
+// key belongs to one provider, so moving to another host without typing a new key drops it instead of sending it there.
+function splitBrainKey(data) {
+  const { brainApiKey, clearBrainKey, ...rest } = data;
+  const cur = loadConfig();
+  if (brainApiKey) {
+    rest.brainKeyEnc = storeBrainKey(brainApiKey);
+    rest.xaiApiKey = '';
+  } else if (clearBrainKey || (rest.brainEndpoint && !sameHost(rest.brainEndpoint, cur.brainEndpoint))) {
+    rest.brainKeyEnc = '';
+    rest.xaiApiKey = '';
+  }
+  return rest;
+}
 
 function createSettingsWindow(isFirstRun) {
   if (settingsWin && !settingsWin.isDestroyed()) {
@@ -684,6 +725,7 @@ function createSettingsWindow(isFirstRun) {
     return;
   }
 
+  settingsFirstRun = isFirstRun;
   const wa = workArea();
   let saved = false;
 
@@ -693,7 +735,8 @@ function createSettingsWindow(isFirstRun) {
     x: Math.round(wa.x + wa.width / 2 - SETTINGS_W / 2),
     y: Math.round(wa.y + wa.height / 2 - SETTINGS_H / 2),
     resizable: false,
-    title: 'Clawd Pet - Cài đặt',
+    backgroundColor: uiBackground(),
+    title: 'Pixel Pet - Cài đặt',
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'settingsPreload.js'),
@@ -703,8 +746,16 @@ function createSettingsWindow(isFirstRun) {
   settingsWin.loadFile(path.join(__dirname, 'renderer', 'settings.html'));
 
   const onSave = (_e, data) => {
+    let patch;
+    try {
+      patch = splitBrainKey(data);
+    } catch (err) {
+      dialog.showErrorBox('Không lưu được key', err.message);
+      return;
+    }
     saved = true;
-    applyConfig(saveConfigAndReturn(data));
+    applyConfig(saveConfigAndReturn(patch));
+    if (tray && !tray.isDestroyed()) buildTrayMenu();
     settingsWin.close();
     if (isFirstRun) startApp();
   };
@@ -726,10 +777,23 @@ function saveConfigAndReturn(data) {
   return config;
 }
 
-ipcMain.handle('settings-get-initial', () => ({
-  ...(petConfig || loadConfig()),
-  defaultGreetings: DEFAULT_GREETINGS,
-}));
+// The stored key (encrypted or legacy plaintext) stays in the main process; the form only learns whether one exists.
+ipcMain.handle('settings-get-initial', () => {
+  const { brainKeyEnc, xaiApiKey, ...config } = petConfig || loadConfig();
+  return {
+    ...config,
+    defaultGreetings: DEFAULT_GREETINGS,
+    isFirstRun: settingsFirstRun,
+    hasStoredKey: !!(brainKeyEnc || xaiApiKey),
+    hasEnvKey: !!(process.env.BRAIN_API_KEY || process.env.XAI_API_KEY),
+  };
+});
+
+ipcMain.handle('brain-test', (_e, form) => {
+  const cur = petConfig || loadConfig();
+  const apiKey = form.apiKey || (sameHost(form.endpoint, cur.brainEndpoint) ? brainKeyFor(cur) : '');
+  return brain.test({ endpoint: form.endpoint, model: form.model, reasoningEffort: form.reasoningEffort, apiKey });
+});
 
 function startApp() {
   createWindow();

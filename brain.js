@@ -97,6 +97,46 @@ function parse(text, states, sayAllowed) {
   return { state: obj.state, say: say || null };
 }
 
+function post(conf, messages, signal) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (conf.apiKey) headers.Authorization = `Bearer ${conf.apiKey}`;
+  return fetch(conf.endpoint || DEFAULT_ENDPOINT, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model: conf.model || DEFAULT_MODEL,
+      messages,
+      // Reasoning models spend part of this budget thinking before the JSON, so it needs headroom beyond the reply.
+      max_tokens: 400,
+      temperature: 1,
+      ...(conf.reasoningEffort ? { reasoning_effort: conf.reasoningEffort } : {}),
+    }),
+    signal,
+  });
+}
+
+async function readJson(res) {
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`HTTP ${res.status} ${body.slice(0, 200)}`);
+  }
+  return res.json();
+}
+
+// One-off check for the settings window; resolves to { ok, message } and never throws.
+async function test(conf) {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), TIMEOUT_MS);
+  try {
+    await readJson(await post(conf, [{ role: 'user', content: 'Reply with the single word: ok' }], ac.signal));
+    return { ok: true, message: 'Kết nối thành công.' };
+  } catch (err) {
+    return { ok: false, message: err.name === 'AbortError' ? 'Hết thời gian chờ.' : err.message };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // Fire-and-forget: never throws, never blocks the caller. The result lands in `decision` for take().
 function request(ctx) {
   if (!ready()) return;
@@ -110,29 +150,8 @@ function request(ctx) {
   abort = ac;
   const timer = setTimeout(() => ac.abort(), TIMEOUT_MS);
 
-  const headers = { 'Content-Type': 'application/json' };
-  if (settings.apiKey) headers.Authorization = `Bearer ${settings.apiKey}`;
-
-  fetch(settings.endpoint || DEFAULT_ENDPOINT, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      model: settings.model || DEFAULT_MODEL,
-      messages: buildPrompt({ ...ctx, recent }, states, sayAllowed),
-      // Reasoning models spend part of this budget thinking before the JSON, so it needs headroom beyond the reply.
-      max_tokens: 400,
-      temperature: 1,
-      ...(settings.reasoningEffort ? { reasoning_effort: settings.reasoningEffort } : {}),
-    }),
-    signal: ac.signal,
-  })
-    .then(async (res) => {
-      if (!res.ok) {
-        const body = await res.text().catch(() => '');
-        throw new Error(`HTTP ${res.status} ${body.slice(0, 200)}`);
-      }
-      return res.json();
-    })
+  post(settings, buildPrompt({ ...ctx, recent }, states, sayAllowed), ac.signal)
+    .then(readJson)
     .then((json) => {
       const d = parse(json?.choices?.[0]?.message?.content, states, sayAllowed);
       if (!d) throw new Error(`bad reply: ${JSON.stringify(json?.choices?.[0]?.message?.content)}`);
@@ -153,4 +172,4 @@ function request(ctx) {
     });
 }
 
-module.exports = { configure, isOn, isConfigured, ready, request, take, allowedStates, DEFAULT_MODEL, DEFAULT_ENDPOINT };
+module.exports = { configure, isOn, isConfigured, ready, request, take, test, allowedStates, DEFAULT_MODEL, DEFAULT_ENDPOINT };

@@ -3,13 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>Chọn pet</title>
+<link rel="stylesheet" href="css/ui.css">
 <style>
-  html, body {
-    margin: 0;
-    background: #F2F2F2;
-    color: #2B2B2B;
-    font-family: "Segoe UI", sans-serif;
-    font-size: 13px;
+  body {
     user-select: none;
   }
 
@@ -20,38 +16,40 @@
 
   h1 {
     font-size: 15px;
-    margin: 0 0 20px;
+    margin: 0 0 18px;
     text-align: center;
-    font-weight: 700;
   }
 
   #cards {
     display: flex;
-    gap: 14px;
+    gap: 12px;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
   .card {
     flex: 1;
-    border: 2px solid #2B2B2B;
-    background: #FFF;
-    padding: 16px 8px 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 14px 8px 12px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    transition: background 0.08s;
+    transition: background 0.1s, border-color 0.1s;
   }
 
   .card:hover {
-    background: #EAEAEA;
+    background: var(--surface-2);
+    border-color: var(--border-strong);
   }
 
   .card.selected {
-    background: #2B2B2B;
-    color: #F2F2F2;
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
   }
 
   .card img {
@@ -62,33 +60,50 @@
   }
 
   .card-name {
-    font-weight: 700;
-    font-size: 13px;
+    font-weight: 600;
+  }
+
+  #preview {
+    position: relative;
+    height: 150px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  #previewFrame {
+    display: none;
+    width: 200px;
+    height: 130px;
+    border: 0;
+    background: transparent;
+    /* The sprite page is light-scheme; matching it keeps the frame transparent when this window is dark. */
+    color-scheme: light;
+    pointer-events: none;
+  }
+
+  #previewLabel {
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  #previewHint {
+    color: var(--muted);
   }
 
   #next {
     display: block;
     width: 100%;
     box-sizing: border-box;
-    border: 2px solid #2B2B2B;
-    background: #2B2B2B;
-    color: #F2F2F2;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
     padding: 9px 0;
-    cursor: pointer;
-  }
-
-  #next:disabled {
-    background: #CCC;
-    border-color: #CCC;
-    color: #999;
-    cursor: not-allowed;
-  }
-
-  #next:not(:disabled):hover {
-    background: #444;
   }
 </style>
 </head>
@@ -125,7 +140,13 @@
       </div>
     </div>
 
-    <button id="next" disabled>Tiếp tục →</button>
+    <div id="preview">
+      <span id="previewLabel"></span>
+      <span id="previewHint">Chọn một pet để xem trước</span>
+      <iframe id="previewFrame" title="Xem trước" scrolling="no" tabindex="-1"></iframe>
+    </div>
+
+    <button id="next" class="btn primary" disabled>Tiếp tục →</button>
   </div>
   <script src="model-picker.js"></script>
 </body>

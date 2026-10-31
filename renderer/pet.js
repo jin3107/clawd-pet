@@ -25,8 +25,22 @@ function scheduleBlink() {
   }, delay);
 }
 
+// ?preview=<model> runs the sprite on its own (used by the model picker): no IPC, just a looping set of poses.
+const previewModel = new URLSearchParams(location.search).get('preview');
+const PREVIEW_LOOP = [['idle', 2600], ['walk', 2600], ['jump', 1300], ['think', 2600]];
+
+function runPreview(apply) {
+  let i = 0;
+  const step = () => {
+    const [state, ms] = PREVIEW_LOOP[i++ % PREVIEW_LOOP.length];
+    apply({ state, facing: 1, careMsg: false });
+    setTimeout(step, ms);
+  };
+  step();
+}
+
 async function init() {
-  const model = await window.petAPI.getModel();
+  const model = previewModel || await window.petAPI.getModel();
   document.body.classList.add(`model-${model}`);
   // Only the hand-drawn cat/sheep art faces left by default; the original
   // Clawd sprite already faces right, so it needs no flip negation.
@@ -40,7 +54,7 @@ async function init() {
   flipGroup = document.getElementById('flip-group');
   headZone = document.getElementById('head-zone');
 
-  window.petAPI.onState(({ state, facing, careMsg }) => {
+  const applyState = ({ state, facing, careMsg }) => {
     const base =
       state.startsWith('climb') ? 'climb' :
       state.startsWith('code')  ? 'code'  :
@@ -57,7 +71,15 @@ async function init() {
     document.body.classList.toggle('scared',  state.startsWith('fall') && state.includes('scared'));
     document.body.classList.toggle('care-msg', !!careMsg);
     flipGroup.style.transform = `scaleX(${facingSign * facing})`;
-  });
+  };
+
+  if (previewModel) {
+    document.body.classList.add('preview');
+    runPreview(applyState);
+    scheduleBlink();
+    return;
+  }
+  window.petAPI.onState(applyState);
 
   creature.addEventListener('mouseenter', () => window.petAPI.setInteractive(true));
 
