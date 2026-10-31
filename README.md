@@ -1,14 +1,14 @@
 <div align="center">
-  <img src="renderer/app-icon.png" width="96" height="96" alt="clawd-pet icon" />
+  <img src="renderer/app-icon.png" width="96" height="96" alt="pixel-pet icon" />
 
-  # Clawd Pet
+  # Pixel Pet
 
   A tiny pixel-art desktop pet — pick Clawd, a cat, or a sheep — that lives
   on your Windows desktop.
 
-  [![Stars](https://img.shields.io/github/stars/jin3107/clawd-pet?style=flat-square)](https://github.com/jin3107/clawd-pet/stargazers)
-  [![Forks](https://img.shields.io/github/forks/jin3107/clawd-pet?style=flat-square)](https://github.com/jin3107/clawd-pet/network/members)
-  [![License](https://img.shields.io/github/license/jin3107/clawd-pet?style=flat-square)](LICENSE)
+  [![Stars](https://img.shields.io/github/stars/jin3107/pixel-pet?style=flat-square)](https://github.com/jin3107/pixel-pet/stargazers)
+  [![Forks](https://img.shields.io/github/forks/jin3107/pixel-pet?style=flat-square)](https://github.com/jin3107/pixel-pet/network/members)
+  [![License](https://img.shields.io/github/license/jin3107/pixel-pet?style=flat-square)](LICENSE)
   [![Version](https://img.shields.io/badge/version-1.4.0-blue?style=flat-square)](package.json)
   [![Platform](https://img.shields.io/badge/platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](#requirements)
   [![Electron](https://img.shields.io/badge/Electron-31-47848F?style=flat-square&logo=electron&logoColor=white)](https://www.electronjs.org/)
@@ -73,8 +73,8 @@ except when you're actually touching the pet.
 ## Getting started
 
 ```bash
-git clone https://github.com/jin3107/clawd-pet.git
-cd clawd-pet
+git clone https://github.com/jin3107/pixel-pet.git
+cd pixel-pet
 npm install
 npm start
 ```

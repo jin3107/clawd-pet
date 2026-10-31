@@ -1,0 +1,162 @@
+/* Shared look for the settings and model-picker windows: Windows 11 style (soft borders, 6px radius, accent underline
+   tabs), light/dark following the system. The pet sprite keeps its own hard-pixel rules in base.css/states.css. */
+:root {
+  color-scheme: light dark;
+  --bg: #F3F3F3;
+  --surface: #FFFFFF;
+  --surface-2: #F7F7F7;
+  --border: #E0E0E0;
+  --border-strong: #C4C4C4;
+  --text: #1B1B1B;
+  --muted: #5F5F5F;
+  --accent: #B8573A;
+  --accent-hover: #A24A31;
+  --on-accent: #FFFFFF;
+  --accent-soft: #F8EBE5;
+  --ok: #0F7B3F;
+  --danger: #C42B1C;
+  --radius: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #202020;
+    --surface: #2B2B2B;
+    --surface-2: #333333;
+    --border: #3D3D3D;
+    --border-strong: #5A5A5A;
+    --text: #F3F3F3;
+    --muted: #A8A8A8;
+    --accent: #E08A6C;
+    --accent-hover: #EA9C80;
+    --on-accent: #1B1B1B;
+    --accent-soft: #3B2E29;
+    --ok: #6CCB8F;
+    --danger: #FF99A4;
+  }
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-size: 13px;
+}
+
+h1 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 14px;
+}
+
+h2 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 4px 0 0;
+}
+
+input[type="text"],
+input[type="password"],
+select,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font: inherit;
+  padding: 6px 8px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--accent);
+  margin: 2px 0 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.btn {
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 7px 16px;
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.btn.primary {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn.primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+
+.tab {
+  font: inherit;
+  font-weight: 600;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 4px 4px 0 0;
+  padding: 8px 14px;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+
+.tab:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}

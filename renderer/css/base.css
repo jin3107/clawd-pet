@@ -28,6 +28,13 @@ body.held #creature {
   cursor: grabbing;
 }
 
+/* Model picker preview: same sprite at 2x, not interactive. */
+body.preview #creature {
+  width: 200px;
+  height: 130px;
+  cursor: default;
+}
+
 #flip-group {
   transform-origin: 40px 20px;
   transition: transform 0.15s ease-out;
